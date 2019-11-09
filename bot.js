@@ -84,7 +84,7 @@ function onMessageHandler(channel, user, msg, self) {
 	---------------------------------------------------*/
 
   // no command found. nothing to return
-  if (!_isMatch && msg.substr(0, 1) == "!") {
+  if (!_isMatch && msg.substr(0, 1) == "!" && msg.length > 1) {
     // non-command text
     //console.log(`* Unknown command ${_needle} for ${_displayname}`);
     client.say(
@@ -100,8 +100,8 @@ function onMessageHandler(channel, user, msg, self) {
     if (_isMatch) {
       //eval(_fn + "("+_cid+")"); // run the function
       //eval(`${_fn}("${_displayname}", ${_cid})`); saving original
-      // username, displayname, isMod, isOp, commandID
-      eval(`${_fn}("${_displayname}", ${_cid})`);
+      // username, displayname, commandID
+      eval(`${_fn}("${_username}", "${_displayname}", ${_cid})`);
       console.log(
         `* Executed ${_cmd} command for ${_displayname}[${_pLevel}] req:[${_perm}]`
       );
@@ -176,15 +176,6 @@ _command.push([
 _command.push(["!dice", "1", "com_dice", "!dice", "Roll a pair of dice.", "0"]);
 
 _command.push([
-  "!join",
-  "1",
-  "com_play",
-  "!join or !play",
-  "Join the next available round.",
-  "0"
-]);
-
-_command.push([
   "!give",
   "2",
   "com_give",
@@ -199,6 +190,33 @@ _command.push([
   "com_gold",
   "!give [target] [amount]",
   "Give another player some gold.",
+  "2"
+]);
+
+_command.push([
+  "!help",
+  "1",
+  "com_help",
+  "!help",
+  "Help with commands and such.",
+  "0"
+]);
+
+_command.push([
+  "!join",
+  "1",
+  "com_play",
+  "!join or !play",
+  "Join the next available round.",
+  "0"
+]);
+
+_command.push([
+  "!makelist",
+  "1",
+  "com_makelist",
+  "!makelist",
+  "Create a list of commands to update commands page.",
   "2"
 ]);
 
@@ -325,36 +343,105 @@ for (var i = 0; i < _commands; i++) {
 
       ============== ==============  */
 
+function com_1() {
+  // username,displayname,commandID
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  client.say(_chan, `${_dname} chooses path 1.`);
+}
+
+function com_2() {
+  // username,displayname,commandID
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  client.say(_chan, `${_dname} chooses path 2.`);
+}
+
+function com_3() {
+  // username,displayname,commandID
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  client.say(_chan, `${_dname} chooses path 3.`);
+}
+
+function com_4() {
+  // username,displayname,commandID
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  client.say(_chan, `${_dname} chooses path 4.`);
+}
+
 function com_commands() {
-  var _cid = arguments[1]; //command id
+  // username,displayname,commandID
+  var _cid = arguments[2]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_commands} commands: https://tinyurl.com/1simpoblel`);
 }
 
 function com_d20() {
+  var _dname = arguments[1];
   const sides = 20;
   const num = Math.floor(Math.random() * sides) + 1;
-  client.say(_chan, `You rolled a ${num}.`);
+  client.say(_chan, `[ ${num} ] for ${_dname} on a D20.`);
 }
 
 function com_dice() {
-  var _uname = arguments[0];
+  var _dname = arguments[1];
   const sides = 6;
   const d1 = Math.floor(Math.random() * sides) + 1;
   const d2 = Math.floor(Math.random() * sides) + 1;
   const outcome = d1 + d2;
-  client.say(_chan, `${_uname} Rolled a ${d1} and a ${d2}: (${outcome})`);
+  client.say(
+    _chan,
+    `[ ${outcome} ] for ${_dname} with a ( ${d1} )+( ${d2} ) dice roll.`
+  );
 }
 
+function com_help() {
+  client.say(_chan, `${_commands} commands: https://tinyurl.com/1simpoblel`);
+}
+
+function com_makelist() {
+  //use this to output the command list (for txt file)
+  for (var i = 0; i < _commands; i++) {
+    console.log(
+      _command[i][0] + ": " + _command[i][4] + " [Usage]: " + _command[i][3]
+    );
+  }
+}
+
+// command=0 type=1 function=2 useage=3 hint=4 mod/op=5 (0,1,2)
 function com_uptime() {
   client.say(_chan, `Not sure what the uptime (command) is atm.`);
 }
 
 // "!test"
 function com_test() {
-  var _cid = arguments[1]; //command id
+  var _cid = arguments[2]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_cid}, ${_cmd}, ${_fn}`);
+}
+
+function com_text() {
+  // username,displayname,commandID
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  client.say(_chan, `${_dname} tried sending OP '${OP}' a text message.`);
 }
