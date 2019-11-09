@@ -1,0 +1,26 @@
+!1: Choose path 1.
+!2: Choose path 2.
+!3: Choose path 3.
+!4: Choose path 4.
+!buy: Buy an item!
+!commands: View all commands.
+!d20: Roll a 20-sided die.
+!deletenote: Delete a note.
+!deleteplayer: Delete a player (self-only if NOT admin).
+!dice: Roll a pair of dice.
+!join: Join the next available round.
+!give: Give another player an item.
+!gold: Give another player some gold.
+!me: View your stats.
+!note: Create a note.
+!notes: View notes list.
+!play: Join the next available round.
+!player: View target player's stats.
+!players: View the players list.
+!rank: View your leaderboard rank.
+!readnote: Read a note.
+!shop: View the shop!
+!stats: View your stats.
+!text: Send OP a text message.
+!uptime: Display this channel's uptime.
+!test: Run a test.
