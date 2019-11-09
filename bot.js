@@ -390,7 +390,10 @@ function com_buy() {
   var _cid = arguments[2]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
-  client.say(_chan, `${_dname} bought something from the shop! - https://tinyurl.com/2simpoblel`);
+  client.say(
+    _chan,
+    `${_dname} bought something from the shop! - https://tinyurl.com/2simpoblel`
+  );
 }
 
 function com_commands() {
@@ -426,11 +429,11 @@ function com_help() {
 
 function com_makelist() {
   //use this to output the command list (for txt file)
+  let _cl = `**${_commands} commands (updated regularly)**\r\r`;
   for (var i = 0; i < _commands; i++) {
-    console.log(
-      _command[i][0] + ": " + _command[i][4] + " [Usage]: " + _command[i][3]
-    );
+    _cl += "- `" + _command[i][3] + "`  " + _command[i][4] + "\r\r";
   }
+  console.log(_cl);
 }
 
 // command=0 type=1 function=2 useage=3 hint=4 mod/op=5 (0,1,2)
