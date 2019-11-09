@@ -25,12 +25,17 @@ function onConnectedHandler(addr, port) {
 }
 
 let _chan = "";
+let OP = "meeklo"; // used to check for main operator of the channel for special permissions
 
 // Called every time a message comes in
 function onMessageHandler(channel, user, msg, self) {
   _chan = channel;
   // is the user a moderator?
-  var _isMod = user["mod"] == false ? 0 : 1;
+  var _isMod = user["mod"]; // true/false
+  var _isOp = user["username"] == OP ? true : false;
+  _isMod = _isOp ? true : false; // set Op's Mod Status to true
+  var _username = user["username"];
+  var _displayname = user["display-name"];
 
   if (self) {
     return;
@@ -63,9 +68,9 @@ function onMessageHandler(channel, user, msg, self) {
       break;
     }
   }
-  // checking our variables
+
   console.log(
-    `${msg}, ${_isMatch}, ${_cid}, ${_type}, ${_cmd}, ${_fn}, ${_usage}, ${_hint}`
+    `${_cid}, ${_type}, ${_cmd}, ${_fn}, ${_usage}, ${_hint}`
   );
 
   /*--------------------------------------------------
@@ -73,16 +78,22 @@ function onMessageHandler(channel, user, msg, self) {
 	---------------------------------------------------*/
 
   // no command found. nothing to return
-  if (!_isMatch) {
+  if (!_isMatch && msg.substr(0, 1) == "!") {
     // non-command text
-    console.log(`* Unknown command ${_needle}`);
+    //console.log(`* Unknown command ${_needle} for ${_displayname}`);
+    client.say(
+      _chan,
+      `Unknown command ${_needle} for ${_displayname} https://tinyurl.com/1simpoblel`
+    );
   }
 
   // return message back to user in channel
   if (_isMatch) {
     //eval(_fn + "("+_cid+")"); // run the function
-    eval(`${_fn}(${_cid})`);
-    console.log(`* Executed ${_cmd} command`);
+    //eval(`${_fn}("${_displayname}", ${_cid})`); saving original
+    // username, displayname, isMod, isOp, commandID
+    eval(`${_fn}("${_displayname}", ${_cid})`);
+    console.log(`* Executed ${_cmd} command for ${_displayname}`);
   }
 }
 
@@ -93,7 +104,7 @@ function onMessageHandler(channel, user, msg, self) {
       ============== ==============  */
 
 let _command = new Array();
-// command=0 type=1 function=2 useage=3 hint=4
+// command=0 type=1 function=2 useage=3 hint=4 mod/op=5 (0,1,2)
 // command type function useage 	hint
 /* types include:
 		1. simple: /say hi = hi
@@ -101,17 +112,18 @@ let _command = new Array();
 		3. complex: /email [name@ww.com] [subject]|[msg]|[etc]|[etc]
 */
 
-_command.push(["!1", "1", "com_1", "!1", "Choose path 1."]);
-_command.push(["!2", "1", "com_2", "!2", "Choose path 2."]);
-_command.push(["!3", "1", "com_3", "!3", "Choose path 3."]);
-_command.push(["!4", "1", "com_4", "!4", "Choose path 4."]);
+_command.push(["!1", "1", "com_1", "!1", "Choose path 1.", "0"]);
+_command.push(["!2", "1", "com_2", "!2", "Choose path 2.", "0"]);
+_command.push(["!3", "1", "com_3", "!3", "Choose path 3.", "0"]);
+_command.push(["!4", "1", "com_4", "!4", "Choose path 4.", "0"]);
 
 _command.push([
   "!buy",
   "2",
   "com_buy",
   "!buy [item name or id]",
-  "Buy an item!"
+  "Buy an item!",
+  "0"
 ]);
 
 _command.push([
@@ -119,17 +131,19 @@ _command.push([
   "1",
   "com_commands",
   "!commands",
-  "View all commands."
+  "View all commands.",
+  "0"
 ]);
 
-_command.push(["!d20", "1", "com_d20", "!d20", "Roll a 20-sided die."]);
+_command.push(["!d20", "1", "com_d20", "!d20", "Roll a 20-sided die.", "0"]);
 
 _command.push([
   "!deletenote",
   "2",
   "com_deletenote",
   "!deletenote [id]",
-  "Delete a note."
+  "Delete a note.",
+  "0"
 ]);
 
 _command.push([
@@ -137,17 +151,19 @@ _command.push([
   "2",
   "com_deleteplayer",
   "!deleteplayer [name or id or default(self)]",
-  "Delete a player (self-only if NOT admin)."
+  "Delete a player (self-only if NOT admin).",
+  "0"
 ]);
 
-_command.push(["!dice", "1", "com_dice", "!dice", "Roll a pair of dice."]);
+_command.push(["!dice", "1", "com_dice", "!dice", "Roll a pair of dice.", "0"]);
 
 _command.push([
   "!join",
   "1",
   "com_play",
   "!join or !play",
-  "Join the next available round."
+  "Join the next available round.",
+  "0"
 ]);
 
 _command.push([
@@ -155,7 +171,8 @@ _command.push([
   "2",
   "com_give",
   "!give [target] [item id]",
-  "Give another player an item."
+  "Give another player an item.",
+  "2"
 ]);
 
 _command.push([
@@ -163,21 +180,37 @@ _command.push([
   "2",
   "com_gold",
   "!give [target] [amount]",
-  "Give another player some gold."
+  "Give another player some gold.",
+  "2"
 ]);
 
-_command.push(["!me", "1", "com_stats", "!me or !stats", "View your stats."]);
+_command.push([
+  "!me",
+  "1",
+  "com_stats",
+  "!me or !stats",
+  "View your stats.",
+  "0"
+]);
 
-_command.push(["!note", "2", "com_note", "!note [message]", "Create a note."]);
+_command.push([
+  "!note",
+  "2",
+  "com_note",
+  "!note [message]",
+  "Create a note.",
+  "0"
+]);
 
-_command.push(["!notes", "1", "com_notes", "!notes", "View notes list."]);
+_command.push(["!notes", "1", "com_notes", "!notes", "View notes list.", "0"]);
 
 _command.push([
   "!play",
   "1",
   "com_play",
   "!join or !play",
-  "Join the next available round."
+  "Join the next available round.",
+  "0"
 ]);
 
 _command.push([
@@ -185,7 +218,8 @@ _command.push([
   "2",
   "com_player",
   "!player [name or id]",
-  "View target player's stats."
+  "View target player's stats.",
+  "0"
 ]);
 
 _command.push([
@@ -193,7 +227,8 @@ _command.push([
   "1",
   "com_players",
   "!players",
-  "View the players list."
+  "View the players list.",
+  "0"
 ]);
 
 _command.push([
@@ -201,7 +236,8 @@ _command.push([
   "1",
   "com_rank",
   "!rank",
-  "View your leaderboard rank."
+  "View your leaderboard rank.",
+  "0"
 ]);
 
 _command.push([
@@ -209,7 +245,8 @@ _command.push([
   "2",
   "com_readnote",
   "!readnote [id]",
-  "Read a note."
+  "Read a note.",
+  "0"
 ]);
 
 _command.push([
@@ -217,7 +254,8 @@ _command.push([
   "2",
   "com_shop",
   "!shop [armor, pets, potions, weapons]",
-  "View the shop!"
+  "View the shop!",
+  "0"
 ]);
 
 _command.push([
@@ -225,17 +263,26 @@ _command.push([
   "1",
   "com_stats",
   "!me or !stats",
-  "View your stats."
+  "View your stats.",
+  "0"
 ]);
 
-_command.push(["!text", "2", "com_text", "!text", "Send OP a text message."]);
+_command.push([
+  "!text",
+  "2",
+  "com_text",
+  "!text",
+  "Send OP a text message.",
+  "0"
+]);
 
 _command.push([
   "!uptime",
   "1",
   "com_uptime",
   "!uptime",
-  "Display this channel's uptime."
+  "Display this channel's uptime.",
+  "0"
 ]);
 
 _command.push([
@@ -243,7 +290,8 @@ _command.push([
   "1",
   "com_test",
   "!test [message here]",
-  "Run a test."
+  "Run a test.",
+  "1"
 ]);
 
 let _commands = _command.length;
@@ -260,23 +308,25 @@ for (var i = 0; i < _commands; i++) {
       ============== ==============  */
 
 function com_commands() {
-  var _cid = arguments[0]; //command id
+  var _cid = arguments[1]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
-  client.say(
-    _chan,
-    `There are ${_commands} commands. View them here: javascript:void(0)`
-  );
+  client.say(_chan, `${_commands} commands: https://tinyurl.com/1simpoblel`);
 }
 
 function com_d20() {
-  //var _chan = arguments[0];
   const sides = 20;
   const num = Math.floor(Math.random() * sides) + 1;
-  client.say(
-    _chan,
-    `You rolled a ${num}. Link: https://glitch.com/~twitch-chatbot`
-  );
+  client.say(_chan, `You rolled a ${num}.`);
+}
+
+function com_dice() {
+  var _uname = arguments[0];
+  const sides = 6;
+  const d1 = Math.floor(Math.random() * sides) + 1;
+  const d2 = Math.floor(Math.random() * sides) + 1;
+  const outcome = d1 + d2;
+  client.say(_chan, `${_uname} Rolled a ${d1} and a ${d2}: (${outcome})`);
 }
 
 function com_uptime() {
@@ -285,7 +335,7 @@ function com_uptime() {
 
 // "!test"
 function com_test() {
-  var _cid = arguments[0]; //command id
+  var _cid = arguments[1]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_cid}, ${_cmd}, ${_fn}`);
