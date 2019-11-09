@@ -34,6 +34,14 @@ function onMessageHandler(channel, user, msg, self) {
   var _isMod = user["mod"]; // true/false
   var _isOp = user["username"] == OP ? true : false;
   _isMod = _isOp ? true : false; // set Op's Mod Status to true
+  var _pLevel = 0; // set their permissions level
+  if (_isMod) {
+    _pLevel++;
+  }
+  if (_isOp) {
+    _pLevel++;
+  }
+
   var _username = user["username"];
   var _displayname = user["display-name"];
 
@@ -53,6 +61,7 @@ function onMessageHandler(channel, user, msg, self) {
   }
   var _hayStack = "";
   var _isMatch = false;
+  var _perm = 0;
   for (var i = 0; i < _commands; i++) {
     // search for our _needle in the commands array
     _hayStack = _command[i][0];
@@ -65,13 +74,10 @@ function onMessageHandler(channel, user, msg, self) {
       var _fn = _command[i][2]; // get command function
       var _usage = _command[i][3]; // get command usage (description)
       var _hint = _command[i][4]; // get command hint (how to use this command)
+      _perm = _command[i][5]; // get command permission (who can use this command?)
       break;
     }
   }
-
-  console.log(
-    `${_cid}, ${_type}, ${_cmd}, ${_fn}, ${_usage}, ${_hint}`
-  );
 
   /*--------------------------------------------------
 			PART TWO - Separate parts
@@ -83,17 +89,29 @@ function onMessageHandler(channel, user, msg, self) {
     //console.log(`* Unknown command ${_needle} for ${_displayname}`);
     client.say(
       _chan,
-      `Unknown command ${_needle} for ${_displayname} https://tinyurl.com/1simpoblel`
+      `bad cmd: '${_needle}' @${_displayname} https://tinyurl.com/1simpoblel`
     );
   }
 
   // return message back to user in channel
-  if (_isMatch) {
-    //eval(_fn + "("+_cid+")"); // run the function
-    //eval(`${_fn}("${_displayname}", ${_cid})`); saving original
-    // username, displayname, isMod, isOp, commandID
-    eval(`${_fn}("${_displayname}", ${_cid})`);
-    console.log(`* Executed ${_cmd} command for ${_displayname}`);
+  // check for required op/mod permission
+
+  if (_pLevel >= _perm) {
+    if (_isMatch) {
+      //eval(_fn + "("+_cid+")"); // run the function
+      //eval(`${_fn}("${_displayname}", ${_cid})`); saving original
+      // username, displayname, isMod, isOp, commandID
+      eval(`${_fn}("${_displayname}", ${_cid})`);
+      console.log(
+        `* Executed ${_cmd} command for ${_displayname}[${_pLevel}] req:[${_perm}]`
+      );
+    }
+  } else {
+    // permission denied
+    console.log(
+      `${_displayname}[${_pLevel}] lacks the permission[${_perm}] for that command`
+    );
+    client.say(_chan, `${_displayname} lacks the permission to use ${_cmd}.`);
   }
 }
 
