@@ -250,7 +250,7 @@ let _commands = _command.length;
 
 /* use this to output the command list (for txt file)
 for (var i = 0; i < _commands; i++) {
-  console.log(_command[i][0] + ": " + _command[i][4]);
+  console.log(_command[i][0] + ": " + _command[i][4] + " [Usage]: " + _command[i][3]);
 }*/
 
 /*   ==============  ==============    
