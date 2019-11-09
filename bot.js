@@ -383,6 +383,16 @@ function com_4() {
   client.say(_chan, `${_dname} chooses path 4.`);
 }
 
+function com_buy() {
+  // username,displayname,commandID
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  client.say(_chan, `${_dname} bought something from the shop! - https://tinyurl.com/2simpoblel`);
+}
+
 function com_commands() {
   // username,displayname,commandID
   var _cid = arguments[2]; //command id
