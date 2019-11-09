@@ -89,7 +89,7 @@ function onMessageHandler(channel, user, msg, self) {
     //console.log(`* Unknown command ${_needle} for ${_displayname}`);
     client.say(
       _chan,
-      `bad cmd: '${_needle}' @${_displayname} https://tinyurl.com/1simpoblel`
+      `bad cmd: '${_needle}' @${_displayname} - https://tinyurl.com/0simpoblel`
     );
   }
 
@@ -401,7 +401,7 @@ function com_commands() {
   var _cid = arguments[2]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
-  client.say(_chan, `${_commands} commands: https://tinyurl.com/1simpoblel`);
+  client.say(_chan, `${_commands} commands: https://tinyurl.com/0simpoblel`);
 }
 
 function com_d20() {
@@ -424,7 +424,7 @@ function com_dice() {
 }
 
 function com_help() {
-  client.say(_chan, `${_commands} commands: https://tinyurl.com/1simpoblel`);
+  client.say(_chan, `${_commands} commands: https://tinyurl.com/0simpoblel`);
 }
 
 function com_makelist() {
@@ -434,6 +434,19 @@ function com_makelist() {
     _cl += "- `" + _command[i][3] + "`  " + _command[i][4] + "\r\r";
   }
   console.log(_cl);
+}
+
+function com_shop() {
+  // username,displayname,commandID
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  client.say(
+    _chan,
+    `${_dname}, head on over to the shop! - https://tinyurl.com/2simpoblel`
+  );
 }
 
 // command=0 type=1 function=2 useage=3 hint=4 mod/op=5 (0,1,2)
