@@ -203,12 +203,21 @@ function com_buy() {
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
   var _cid = arguments[2]; //command id
+  var _item = arguments[3]; // item id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
-  client.say(
-    _chan,
-    `${_dname} bought something from the shop! - https://tinyurl.com/2simpoblel`
-  );
+
+  if (isNaN(_item) || _item.length != 4 || _item.includes(".") || _item.includes("-")) {
+    client.say(
+      _chan,
+      `${_dname} that's an invalid item id! - https://tinyurl.com/2simpoblel`
+    );
+  } else {
+    client.say(
+      _chan,
+      `${_dname} bought item ${_item} 'Werewolf Overcoat' for 480g from the shop! - https://tinyurl.com/2simpoblel`
+    );
+  }
 }
 
 function com_commands() {

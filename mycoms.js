@@ -21,14 +21,7 @@ _command.push([
   "0"
 ]);
 
-_command.push([
-  "!buy",
-  "2",
-  "com_buy",
-  "!buy [item name or id]",
-  "Buy an item!",
-  "0"
-]);
+_command.push(["!buy", "1", "com_buy", "!buy [item id]", "Buy an item!", "0"]);
 
 _command.push([
   "!commands",
@@ -182,7 +175,7 @@ _command.push([
 
 _command.push([
   "!shop",
-  "2",
+  "1",
   "com_shop",
   "!shop [armor, pets, potions, weapons]",
   "View the shop!",
