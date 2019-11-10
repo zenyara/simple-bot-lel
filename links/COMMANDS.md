@@ -1,4 +1,4 @@
-**28 commands (updated regularly)**
+**29 commands (updated regularly)**
 
 - `!1`  Choose path 1.
 
@@ -7,6 +7,8 @@
 - `!3`  Choose path 3.
 
 - `!4`  Choose path 4.
+
+- `!about`  About this project.
 
 - `!buy [item name or id]`  Buy an item!
 

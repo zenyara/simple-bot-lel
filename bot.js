@@ -23,7 +23,7 @@ client.connect();
 function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
-
+let _projectName = "simple-bot-lel";
 let _chan = "";
 let OP = "meeklo"; // used to check for main operator of the channel for special permissions
 
@@ -134,6 +134,15 @@ _command.push(["!1", "1", "com_1", "!1", "Choose path 1.", "0"]);
 _command.push(["!2", "1", "com_2", "!2", "Choose path 2.", "0"]);
 _command.push(["!3", "1", "com_3", "!3", "Choose path 3.", "0"]);
 _command.push(["!4", "1", "com_4", "!4", "Choose path 4.", "0"]);
+
+_command.push([
+  "!about",
+  "1",
+  "com_about",
+  "!about",
+  "About this project.",
+  "0"
+]);
 
 _command.push([
   "!buy",
@@ -383,6 +392,19 @@ function com_4() {
   client.say(_chan, `${_dname} chooses path 4.`);
 }
 
+function com_about() {
+  // username,displayname,commandID
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  client.say(
+    _chan,
+    `${_dname} find out about ${_projectName} for Twitch, made with Glitch. - https://tinyurl.com/absimpoblel`
+  );
+}
+
 function com_buy() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
@@ -445,7 +467,7 @@ function com_shop() {
   var _fn = _command[_cid][2]; //fn name;
   client.say(
     _chan,
-    `${_dname}, head on over to the shop! - https://tinyurl.com/2simpoblel`
+    `${_dname} head on over to the shop! - https://tinyurl.com/2simpoblel`
   );
 }
 
