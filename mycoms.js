@@ -36,7 +36,7 @@ _command.push(["!d20", "1", "com_d20", "!d20", "Roll a 20-sided die.", "0"]);
 
 _command.push([
   "!deletenote",
-  "2",
+  "1",
   "com_deletenote",
   "!deletenote [id]",
   "Delete a note.",
@@ -45,7 +45,7 @@ _command.push([
 
 _command.push([
   "!deleteplayer",
-  "2",
+  "1",
   "com_deleteplayer",
   "!deleteplayer [name or id or default(self)]",
   "Delete a player (self-only if NOT admin).",
@@ -60,7 +60,7 @@ _command.push([
   "com_give",
   "!give [target] [item id]",
   "Give another player an item.",
-  "2"
+  "1"
 ]);
 
 _command.push([
@@ -69,7 +69,7 @@ _command.push([
   "com_gold",
   "!give [target] [amount]",
   "Give another player some gold.",
-  "2"
+  "1"
 ]);
 
 _command.push([

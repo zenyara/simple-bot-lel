@@ -109,15 +109,30 @@ function onMessageHandler(channel, user, msg, self) {
         _arg.push(_displayname);
         _arg.push(_cid);
         _arg.push(_p2);
-        //window[_cmd].apply(null, Array.prototype.slice.call(_arg, 0));
         eval(`${_fn}`).apply(null, Array.prototype.slice.call(_arg, 0)); // run function with included args
       }
+
+      if (_type == 2) {
+        // special case (example: /t soandso hello there) -  target + data/msg
+        var _splitArg = msg.split(" ");
+        var _p1 = _splitArg[0]; //command
+        var _p2 = _splitArg[1]; // target arg
+
+        if (typeof _p2 === "undefined") {
+          console.log(`Target var not given.`);
+        } else {
+          var _p3Spot = msg.indexOf(_p2); // spot for the rest
+          var _p3 = msg.substr(_p3Spot + 1 + _p2.length, 999); // the rest
+          _arg.push(_username);
+          _arg.push(_displayname);
+          _arg.push(_cid);
+          _arg.push(_p2);
+          _arg.push(_p3);
+          eval(`${_fn}`).apply(null, Array.prototype.slice.call(_arg, 0)); // run function with included args
+        }
+      }
       //eval(_fn + "("+_cid+")"); // run the function
-      //eval(`${_fn}("${_displayname}", ${_cid})`); saving original
-      // username, displayname, commandID
-
-      ////// eval(`${_fn}("${_username}", "${_displayname}", ${_cid})`);
-
+      //eval(`${_fn}("${_username}", "${_displayname}", ${_cid})`);
       console.log(
         `* Executed ${_cmd} command for ${_displayname}[${_pLevel}] req:[${_perm}]`
       );
@@ -207,7 +222,12 @@ function com_buy() {
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
 
-  if (isNaN(_item) || _item.length != 4 || _item.includes(".") || _item.includes("-")) {
+  if (
+    isNaN(_item) ||
+    _item.length != 4 ||
+    _item.includes(".") ||
+    _item.includes("-")
+  ) {
     client.say(
       _chan,
       `${_dname} that's an invalid item id! - https://tinyurl.com/2simpoblel`
@@ -245,6 +265,28 @@ function com_dice() {
     _chan,
     `[ ${outcome} ] for ${_dname} with a ( ${d1} )+( ${d2} ) dice roll.`
   );
+}
+
+function com_gold() {
+  // username,displayname,commandID,target,amount
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _cid = arguments[2]; //command id
+  var _target = arguments[3]; //target name
+  var _amount = arguments[4]; //gold amount
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+
+  if (
+    _amount <= 0 ||
+    _amount > 27000 ||
+    isNaN(_amount) ||
+    _amount.includes(".")
+  ) {
+    client.say(_chan, `${_dname} gives ${_target} 1 gold.`);
+  } else {
+    client.say(_chan, `${_dname} gives ${_target} ${_amount} gold.`);
+  }
 }
 
 function com_help() {
