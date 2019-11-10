@@ -139,6 +139,7 @@ function onMessageHandler(channel, user, msg, self) {
 
 /*========================================*/
 // Pull-in the commands array from mycoms.js
+// const mycoms = require("./mycoms.js");
 let _command = new Array();
 _command = mycoms.obj.cc;
 let _commands = mycoms.obj.ccs;
