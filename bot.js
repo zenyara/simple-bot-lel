@@ -1,12 +1,16 @@
 const tmi = require("tmi.js");
 const mycoms = require("./mycoms.js");
+const mydb = require("./mydb.js");
 
 // Define configuration options
 const opts = {
   identity: {
+    //Twitch bot username (requires creating another Twitch user, designate this for your "bot")
     username: process.env.TUSER,
+    //Twitch bot oauth token
     password: process.env.TOKEN
   },
+  //Twitch channel (The target Twitch channel(s) where bot will enter and do it's work)
   channels: [process.env.TCHAN]
 };
 
@@ -145,6 +149,21 @@ function onMessageHandler(channel, user, msg, self) {
     client.say(_chan, `${_displayname} lacks the permission to use ${_cmd}.`);
   }
 }
+
+/*   ==============  ==============    
+
+        ACCESS OUR DATABASE
+
+      ============== ==============  */
+
+/*========================================*/
+
+// Pull-in the commands array from mycoms.js
+// const mydb = require("./mydb.js");
+// access db functions:
+// mydb.myfunction(arg1,arg2,arg3);
+
+/*========================================*/
 
 /*   ==============  ==============    
 
@@ -339,6 +358,7 @@ function com_test() {
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_cid}, ${_cmd}, ${_fn}`);
+  mydb.myfunction();
 }
 
 function com_text() {

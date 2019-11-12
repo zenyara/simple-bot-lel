@@ -1,14 +1,15 @@
 {
   "name": "twitch-chatbot",
   "version": "0.0.1",
-  "description": "A simple app chatbot example. Using the command !echo will simply repeat the message.",
+  "description": "A chatbot for Twitch. Using the command !help will give you a link to all commands.",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
   "dependencies": {
     "express": "^4.16.4",
-    "tmi.js": "^1.5.0"
+    "tmi.js": "^1.5.0",
+    "sqlite3": "^4.1.0"
   },
   "engines": {
     "node": "8.x"
@@ -18,8 +19,11 @@
   },
   "license": "MIT",
   "keywords": [
+    "node",
     "twitch",
     "chatbots",
-    "irc"
+    "irc",
+    "glitch",
+    "sqlite"
   ]
 }
