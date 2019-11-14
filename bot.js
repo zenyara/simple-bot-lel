@@ -357,8 +357,11 @@ function com_test() {
   var _cid = arguments[2]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
+  mydb._open();
+  mydb._test();// test read data from twitchusers table
+  //mydb._insert();
+  mydb._close();
   client.say(_chan, `${_cid}, ${_cmd}, ${_fn}`);
-  mydb.myfunction();
 }
 
 function com_text() {
