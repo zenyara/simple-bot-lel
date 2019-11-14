@@ -7,6 +7,14 @@ idb.dbFile = "./.data/sqlite.db";
 idb.exists = idb.fs.existsSync(idb.dbFile);
 idb.sqlite3 = require("sqlite3").verbose();
 
+idb._response = "Starting db..";
+idb._setResponse = function(nr) {
+  idb._response = nr;
+  //console.log(`Response updated: ${nr}`);
+};
+idb._getResponse = function() {
+  return idb._response;
+};
 // Opening new database connection..
 exports._open = function() {
   idb.db = new idb.sqlite3.Database(idb.dbFile, err => {
@@ -66,7 +74,7 @@ exports._dropTable = function() {
 };
 
 // Insert new data into twitchusers table..
-exports._insert = function() {
+exports._newPlayer = function() {
   // Insert new data (test)
 
   idb._un = "meeklo";
@@ -154,7 +162,40 @@ exports._test = function() {
   });
 };
 
+/*==================================================
+  ==================================================
+  
+                Command Calls
+                (from bot.js)
+        
+
+  ==================================================
+  ==================================================*/
+
+// Delete target user
+exports._deleteUser = function(_user) {
+  idb.db.run(`DELETE FROM twitchusers WHERE user_name=?`, _user, function(err) {
+    if (err) {
+      idb._setResponse(err.message);
+      //return console.error(err.message);
+    }
+    //console.log(`Row(s) deleted ${this.changes}`);
+    if (this.changes > 0) {
+      idb._setResponse(
+        `'${_user}' deleted from the database! Type !play or !join to start again.`
+      );
+    } else {
+      idb._setResponse(`'${_user}' not found.`);
+    }
+  });
+};
+
+exports._math = function(a, b) {
+  let sum = a + b;
+  return sum;
+};
+
 // mydb._open, _close, _createTable, _dropTable, _insert, _test
 // mydb._open(); mydb._test(); mydb._close();
 // make this available to the bot.js file
-exports.mydb = idb;
+exports.obj = { db: idb };

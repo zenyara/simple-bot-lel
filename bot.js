@@ -29,12 +29,26 @@ function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
 let _projectName = "simple-bot-lel";
-let _chan = "";
-let OP = "meeklo"; // used to check for main operator of the channel for special permissions
+let _chan = process.env.TCHAN;
+let OP = process.env.TCHAN; // set to main operator of the channel (for special permissions)
+
+/* store and update all players here (to minimize db calls)
+    user_id, user_name, display_name, email, tagline, permission,
+    first_played, last_played, avatar, gold, xp, active, 
+    ban, ban_reason
+*/
+let player = new Array();
+/*==================================================
+  ==================================================
+
+              CHAT HANDLER CODE
+
+
+  ==================================================
+  ==================================================*/
 
 // Called every time a message comes in
 function onMessageHandler(channel, user, msg, self) {
-  _chan = channel;
   // is the user a moderator?
   var _isMod = user["mod"]; // true/false
   var _isOp = user["username"] == OP ? true : false;
@@ -111,6 +125,7 @@ function onMessageHandler(channel, user, msg, self) {
         var _p2 = msg.substr(_p2Spot + 1 + _p1.length, 999); // the rest
         _arg.push(_username);
         _arg.push(_displayname);
+        _arg.push(_pLevel);
         _arg.push(_cid);
         _arg.push(_p2);
         eval(`${_fn}`).apply(null, Array.prototype.slice.call(_arg, 0)); // run function with included args
@@ -123,12 +138,13 @@ function onMessageHandler(channel, user, msg, self) {
         var _p2 = _splitArg[1]; // target arg
 
         if (typeof _p2 === "undefined") {
-          console.log(`Target var not given.`);
+          //console.log(`Target var not given.`);
         } else {
           var _p3Spot = msg.indexOf(_p2); // spot for the rest
           var _p3 = msg.substr(_p3Spot + 1 + _p2.length, 999); // the rest
           _arg.push(_username);
           _arg.push(_displayname);
+          _arg.push(_pLevel);
           _arg.push(_cid);
           _arg.push(_p2);
           _arg.push(_p3);
@@ -137,9 +153,9 @@ function onMessageHandler(channel, user, msg, self) {
       }
       //eval(_fn + "("+_cid+")"); // run the function
       //eval(`${_fn}("${_username}", "${_displayname}", ${_cid})`);
-      console.log(
+      /*console.log(
         `* Executed ${_cmd} command for ${_displayname}[${_pLevel}] req:[${_perm}]`
-      );
+      );*/
     }
   } else {
     // permission denied
@@ -150,40 +166,50 @@ function onMessageHandler(channel, user, msg, self) {
   }
 }
 
-/*   ==============  ==============    
+/*==================================================
+  ==================================================
+  
+            BRING-IN COMMANDS ARRAY
+                (from mycoms.js)
+        This places all commands into an array
+        to organize and detail every command.
 
-        ACCESS OUR DATABASE
+  ==================================================
+  ==================================================*/
 
-      ============== ==============  */
-
-/*========================================*/
-
-// Pull-in the commands array from mycoms.js
-// const mydb = require("./mydb.js");
-// access db functions:
-// mydb.myfunction(arg1,arg2,arg3);
-
-/*========================================*/
-
-/*   ==============  ==============    
-
-  START RETURNED CHAT STRING FUNCTIONS
-
-      ============== ==============  */
-
-/*========================================*/
-// Pull-in the commands array from mycoms.js
-// const mycoms = require("./mycoms.js");
 let _command = new Array();
 _command = mycoms.obj.cc;
 let _commands = mycoms.obj.ccs;
-/*========================================*/
+
+/*==================================================
+  ==================================================
+  
+            BRING-IN MYDB VARS
+                (from mydb.js)
+        We have to call certain variables from 
+        this file to return a response.
+
+  ==================================================
+  ==================================================*/
+let _dbVars = mydb.obj.db;
+//console.log("FIRST: " + mydb._getResponse());
+/*==================================================
+  ==================================================
+  
+  
+              DEFINE COMMAND FUNCTIONS
+       (These correspond to the commands array)
+            
+
+  ==================================================
+  ==================================================*/
 
 function com_1() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_dname} chooses path 1.`);
@@ -193,7 +219,7 @@ function com_2() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_dname} chooses path 2.`);
@@ -203,7 +229,7 @@ function com_3() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_dname} chooses path 3.`);
@@ -213,7 +239,7 @@ function com_4() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_dname} chooses path 4.`);
@@ -223,7 +249,7 @@ function com_about() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(
@@ -236,7 +262,7 @@ function com_buy() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _item = arguments[3]; // item id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
@@ -261,7 +287,7 @@ function com_buy() {
 
 function com_commands() {
   // username,displayname,commandID
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_commands} commands: https://tinyurl.com/0simpoblel`);
@@ -272,6 +298,29 @@ function com_d20() {
   const sides = 20;
   const num = Math.floor(Math.random() * sides) + 1;
   client.say(_chan, `[ ${num} ] for ${_dname} on a D20.`);
+}
+
+function _doResponse() {
+  client.say(_chan, `${_dbVars._response}`);
+}
+
+// "!deleteplayer"
+function com_deleteplayer() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //cmd id
+  var _target = arguments[4].toLowerCase(); //target name to delete
+  // do we have perm to delete this player?
+  if (_target == _uname || _perm > 0) {
+    //console.log(`Permission level: ${_perm}`);
+    //console.log(`Deleted player '${_target}'`);
+    mydb._open();
+    mydb._deleteUser(_target);
+    mydb._close();
+    // get response after x milliseconds
+    let wait = setTimeout(_doResponse, 210);
+  }
 }
 
 function com_dice() {
@@ -290,9 +339,9 @@ function com_gold() {
   // username,displayname,commandID,target,amount
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
-  var _target = arguments[3]; //target name
-  var _amount = arguments[4]; //gold amount
+  var _cid = arguments[3]; //command id
+  var _target = arguments[4]; //target name
+  var _amount = arguments[5]; //gold amount
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
 
@@ -321,14 +370,37 @@ function com_makelist() {
   console.log(_cl);
 }
 
+// "!play or !join"
+function com_play() {
+  // username,displayname,commandID
+  /* need to know if they are a mod!
+      uname dname
+  
+  */
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _fn = _command[_cid][2]; //fn name;
+  mydb._open();
+  /* return mydb._joinGame(_uname,_dname);
+   check to see if uname already exists
+   let userExists = mydb._userCheck();// true / false
+   - update lastplayed
+   put them into the current match (if gameStarted == false)
+  */
+
+  mydb._close();
+  client.say(_chan, `${_cid}, ${_cmd}, ${_fn}`);
+}
+
 function com_say() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
-  var _msg = arguments[3]; // message (the rest of the string)
-  var _cmd = _command[_cid][0]; //command name;
-  var _fn = _command[_cid][2]; //fn name;
+  var _cid = arguments[3]; //command id
+  var _msg = arguments[4]; // message (the rest of the string)
   if (_msg.length > 0) {
     client.say(_chan, `${_dname} says, ${_msg}`);
   }
@@ -338,7 +410,7 @@ function com_shop() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(
@@ -354,11 +426,11 @@ function com_uptime() {
 
 // "!test"
 function com_test() {
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   mydb._open();
-  mydb._test();// test read data from twitchusers table
+  mydb._test(); // test read data from twitchusers table
   //mydb._insert();
   mydb._close();
   client.say(_chan, `${_cid}, ${_cmd}, ${_fn}`);
@@ -368,7 +440,7 @@ function com_text() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
-  var _cid = arguments[2]; //command id
+  var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_dname} tried sending OP '${OP}' a text message.`);

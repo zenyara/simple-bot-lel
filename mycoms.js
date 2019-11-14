@@ -45,10 +45,19 @@ _command.push([
 
 _command.push([
   "!deleteplayer",
-  "1",
+  "2",
   "com_deleteplayer",
-  "!deleteplayer [name or id or default(self)]",
-  "Delete a player (self-only if NOT admin).",
+  "!deleteplayer or !deleteuser [name]",
+  "Delete a player (self-only if NOT mod/op).",
+  "0"
+]);
+
+_command.push([
+  "!deleteuser",
+  "2",
+  "com_deleteplayer",
+  "!deleteuser or !deleteplayer [name]",
+  "Delete a player (self-only if NOT mod/op).",
   "0"
 ]);
 
@@ -67,7 +76,7 @@ _command.push([
   "!gold",
   "2",
   "com_gold",
-  "!give [target] [amount]",
+  "!gold [target] [amount]",
   "Give another player some gold.",
   "1"
 ]);
