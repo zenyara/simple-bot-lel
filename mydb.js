@@ -1,12 +1,12 @@
 // create the exported object for functions and variables
 let idb = {};
-
 // init sqlite db
 idb.fs = require("fs");
 idb.dbFile = "./.data/sqlite.db";
 idb.exists = idb.fs.existsSync(idb.dbFile);
 idb.sqlite3 = require("sqlite3").verbose();
 
+idb._timeout = 180;
 idb._response = "Starting db..";
 idb._setResponse = function(nr) {
   idb._response = nr;
@@ -21,7 +21,7 @@ exports._open = function() {
     if (err) {
       console.log("Could not connect to the database.", err);
     } else {
-      console.log("Connected to database.");
+      //console.log("Connected to database.");
     }
   });
 };
@@ -32,7 +32,7 @@ exports._close = function() {
     if (err) {
       return console.error(err.message);
     }
-    console.log("Closed the database connection.");
+    //console.log("Closed the database connection.");
   });
 };
 
@@ -42,7 +42,7 @@ exports._createTable = function() {
 user_id INTEGER PRIMARY KEY AUTOINCREMENT, 
 user_name TEXT NOT NULL UNIQUE,
 display_name TEXT NOT NULL UNIQUE, 
-email TEXT NOT NULL,
+email TEXT,
 tagline TEXT NOT NULL,
 permission INTEGER NOT NULL DEFAULT 0, 
 first_played TEXT,
@@ -54,67 +54,29 @@ active INTEGER NOT NULL DEFAULT 0,
 ban INTEGER NOT NULL DEFAULT 0,
 ban_reason TEXT NOT NULL DEFAULT ('No reason given.') )";
 */
-  idb.sql =
-    "CREATE TABLE IF NOT EXISTS twitchusers (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL UNIQUE, display_name TEXT NOT NULL UNIQUE, email TEXT NOT NULL,tagline TEXT NOT NULL, permission INTEGER NOT NULL DEFAULT 0, first_played TEXT, last_played TEXT, avatar INTEGER NOT NULL DEFAULT 0, gold INTEGER NOT NULL DEFAULT 4, xp INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 0, ban INTEGER NOT NULL DEFAULT 0, ban_reason TEXT NOT NULL DEFAULT ('No reason given.'))";
-  idb.db.run(idb.sql, err => {
+  let sql =
+    "CREATE TABLE twitchusers (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL UNIQUE, display_name TEXT NOT NULL UNIQUE, email TEXT,tagline TEXT NOT NULL, permission INTEGER NOT NULL DEFAULT 0, first_played TEXT, last_played TEXT, avatar INTEGER NOT NULL DEFAULT 0, gold INTEGER NOT NULL DEFAULT 4, xp INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 0, ban INTEGER NOT NULL DEFAULT 0, ban_reason TEXT NOT NULL DEFAULT ('No reason given.'))";
+  idb.db.run(sql, err => {
     if (err) {
-      console.log(err.message, err);
+      idb._setResponse(`Table 'twitchusers' already exists.`);
+    } else {
+      idb._setResponse(`Table recreated.`);
     }
   });
 };
 
 // Drop the twitchusers table
-exports._dropTable = function() {
-  idb.sql = "DROP TABLE IF EXISTS twitchusers";
-  idb.db.run(idb.sql, err => {
+exports._dropTable = function(tbl) {
+  //let check = `SELECT count(name) FROM sqlite_master WHERE type='table' AND name='${tbl}'`;
+  let sql = `DROP TABLE ${tbl}`;
+  idb.db.run(sql, function(err) {
+    // the error lets us know if the table doesn't exist
     if (err) {
-      console.log(err.message, err);
+      idb._setResponse(`Table '${tbl}' does not exist.`);
+    } else {
+      idb._setResponse(`Table '${tbl}' removed.`);
     }
   });
-};
-
-// Insert new data into twitchusers table..
-exports._newPlayer = function() {
-  // Insert new data (test)
-
-  idb._un = "meeklo";
-  idb._dn = "Meeklo";
-  idb._em = "tester34@gmail.com";
-  idb._tl = "Tagline here.";
-  let d = new Date();
-  let dfp =
-    d.getDay() +
-    " " +
-    d.getMonth() +
-    " " +
-    d.getDate() +
-    " " +
-    d.getFullYear() +
-    "@" +
-    d.getHours() +
-    ":" +
-    d.getMinutes();
-
-  //idb._fp = "Tue Nov 12 2019 @ 2:03 AM";
-  idb._fp = dfp;
-  idb._at = Math.floor(d / 1000);
-
-  idb.sql =
-    "INSERT INTO twitchusers(user_name,display_name,email,tagline,first_played,last_played,active) VALUES (?,?,?,?,?,?,?)";
-  // output the insert statement
-  console.log(idb.sql);
-
-  idb.db.run(
-    idb.sql,
-    [idb._un, idb._dn, idb._em, idb._tl, idb._fp, idb._fp, idb._at],
-    function(err) {
-      if (err) {
-        return console.log(err.message);
-      }
-      // get the last insert id
-      console.log(`A row has been inserted with rowid ${this.lastID}.`);
-    }
-  );
 };
 
 // Delete all rows in twitchusers
@@ -190,12 +152,29 @@ exports._deleteUser = function(_user) {
   });
 };
 
-exports._math = function(a, b) {
-  let sum = a + b;
-  return sum;
+// Insert new data into twitchusers table..
+exports._newPlayer = function(un, dn, perm) {
+  /*  user_id, *user_name, *display_name, email, tagline, *permission,
+    *first_played, *last_played, avatar, gold, xp, *active, 
+    ban, ban_reason  */
+  let d = new Date();
+  let ds = d.toString();
+  let _nowDate = ds.substr(0, 24);
+  let _uts = Math.floor(d / 1000); // UNIX Timestamp (now)
+  let sql =
+    "INSERT INTO twitchusers(user_name,display_name,permission,first_played,last_played,active) VALUES (?,?,?,?,?,?)";
+  // output the insert statement
+  console.log(`${un} - ${dn} - ${perm} - ${_nowDate} - ${_uts}`);
+  idb.db.run(sql, [un, dn, perm, _nowDate, _nowDate, _uts], function(err) {
+    if (err) {
+      idb._setResponse(`${err.message}`);
+      return console.log(err.message);
+    }
+    // get the last insert id
+    console.log(`A row has been inserted with rowid ${this.lastID}.`);
+    idb._setResponse(`Player '${dn}' added. id: ${this.lastID}`);
+  });
 };
 
-// mydb._open, _close, _createTable, _dropTable, _insert, _test
-// mydb._open(); mydb._test(); mydb._close();
 // make this available to the bot.js file
 exports.obj = { db: idb };

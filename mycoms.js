@@ -32,6 +32,15 @@ _command.push([
   "0"
 ]);
 
+_command.push([
+  "!createtable",
+  "1",
+  "com_createtable",
+  "!createtable",
+  "Recreate users table.",
+  "2"
+]);
+
 _command.push(["!d20", "1", "com_d20", "!d20", "Roll a 20-sided die.", "0"]);
 
 _command.push([
@@ -59,6 +68,15 @@ _command.push([
   "!deleteuser or !deleteplayer [name]",
   "Delete a player (self-only if NOT mod/op).",
   "0"
+]);
+
+_command.push([
+  "!droptable",
+  "2",
+  "com_droptable",
+  "!droptable [Table Name]",
+  "Drop a table.",
+  "2"
 ]);
 
 _command.push(["!dice", "1", "com_dice", "!dice", "Roll a pair of dice.", "0"]);

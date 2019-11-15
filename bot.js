@@ -28,9 +28,15 @@ client.connect();
 function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
+
 let _projectName = "simple-bot-lel";
 let _chan = process.env.TCHAN;
 let OP = process.env.TCHAN; // set to main operator of the channel (for special permissions)
+
+// server response timeout function (waiting for db call)
+function _doResponse() {
+  client.say(_chan, `${_dbVars._response}`);
+}
 
 /* store and update all players here (to minimize db calls)
     user_id, user_name, display_name, email, tagline, permission,
@@ -293,15 +299,26 @@ function com_commands() {
   client.say(_chan, `${_commands} commands: https://tinyurl.com/0simpoblel`);
 }
 
+// "!createtable"
+function com_createtable() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //cmd id
+  if (_perm > 1 && _uname == process.env.TCHAN) {
+    mydb._open();
+    mydb._createTable();
+    mydb._close();
+    // get response after x milliseconds
+    let wait = setTimeout(_doResponse, _dbVars._timeout);
+  }
+}
+
 function com_d20() {
   var _dname = arguments[1];
   const sides = 20;
   const num = Math.floor(Math.random() * sides) + 1;
   client.say(_chan, `[ ${num} ] for ${_dname} on a D20.`);
-}
-
-function _doResponse() {
-  client.say(_chan, `${_dbVars._response}`);
 }
 
 // "!deleteplayer"
@@ -311,15 +328,12 @@ function com_deleteplayer() {
   var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //cmd id
   var _target = arguments[4].toLowerCase(); //target name to delete
-  // do we have perm to delete this player?
   if (_target == _uname || _perm > 0) {
-    //console.log(`Permission level: ${_perm}`);
-    //console.log(`Deleted player '${_target}'`);
     mydb._open();
     mydb._deleteUser(_target);
     mydb._close();
     // get response after x milliseconds
-    let wait = setTimeout(_doResponse, 210);
+    let wait = setTimeout(_doResponse, _dbVars._timeout);
   }
 }
 
@@ -333,6 +347,22 @@ function com_dice() {
     _chan,
     `[ ${outcome} ] for ${_dname} with a ( ${d1} )+( ${d2} ) dice roll.`
   );
+}
+
+// "!droptable"
+function com_droptable() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //cmd id
+  var _table = arguments[4]; // table to drop
+  if (_perm > 1 && _uname == process.env.TCHAN) {
+    mydb._open();
+    mydb._dropTable(_table);
+    mydb._close();
+    // get response after x milliseconds
+    let wait = setTimeout(_doResponse, _dbVars._timeout);
+  }
 }
 
 function com_gold() {
@@ -372,27 +402,15 @@ function com_makelist() {
 
 // "!play or !join"
 function com_play() {
-  // username,displayname,commandID
-  /* need to know if they are a mod!
-      uname dname
-  
-  */
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
   var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //command id
-  var _cmd = _command[_cid][0]; //command name;
-  var _fn = _command[_cid][2]; //fn name;
   mydb._open();
-  /* return mydb._joinGame(_uname,_dname);
-   check to see if uname already exists
-   let userExists = mydb._userCheck();// true / false
-   - update lastplayed
-   put them into the current match (if gameStarted == false)
-  */
-
+  mydb._newPlayer(_uname, _dname, _perm);
   mydb._close();
-  client.say(_chan, `${_cid}, ${_cmd}, ${_fn}`);
+  // get response after x milliseconds
+  let wait = setTimeout(_doResponse, _dbVars._timeout);
 }
 
 function com_say() {
@@ -445,3 +463,4 @@ function com_text() {
   var _fn = _command[_cid][2]; //fn name;
   client.say(_chan, `${_dname} tried sending OP '${OP}' a text message.`);
 }
+//mydb._open;mydb._dropTable();mydb._close();
