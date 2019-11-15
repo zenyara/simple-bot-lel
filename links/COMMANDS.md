@@ -1,4 +1,4 @@
-**31 commands (updated regularly)**
+**33 commands (updated regularly)**
 
 - `!1` Choose path 1.
 
@@ -14,11 +14,15 @@
 
 - `!commands` View all commands.
 
+- `!createtable` Recreate users table.
+
 - `!d20` Roll a 20-sided die.
 
 - `!deletenote [id]` Delete a note.
 
 - `!deleteplayer or !deleteuser [name]` Delete a player (self-only if NOT mod/op).
+
+- `!droptable [Table Name]` Drop a table.
 
 - `!dice` Roll a pair of dice.
 
@@ -49,8 +53,6 @@
 - `!say [message]` Say something.
 
 - `!shop [armor, pets, potions, weapons]` View the shop!
-
-- `!me or !stats` View your stats.
 
 - `!text` Send OP a text message.
 
