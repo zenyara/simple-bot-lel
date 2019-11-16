@@ -33,6 +33,15 @@ _command.push([
 ]);
 
 _command.push([
+  "!createnote",
+  "1",
+  "com_createnote",
+  "!createnote [message]",
+  "Create a note.",
+  "0"
+]);
+
+_command.push([
   "!createtable",
   "1",
   "com_createtable",
@@ -54,7 +63,7 @@ _command.push([
 
 _command.push([
   "!deleteplayer",
-  "2",
+  "1",
   "com_deleteplayer",
   "!deleteplayer or !deleteuser [name]",
   "Delete a player (self-only if NOT mod/op).",
@@ -63,7 +72,7 @@ _command.push([
 
 _command.push([
   "!deleteuser",
-  "2",
+  "1",
   "com_deleteplayer",
   "!deleteuser or !deleteplayer [name]",
   "Delete a player (self-only if NOT mod/op).",
@@ -79,7 +88,14 @@ _command.push([
   "2"
 ]);
 
-_command.push(["!dice", "1", "com_dice", "!dice or !roll", "Roll a pair of dice.", "0"]);
+_command.push([
+  "!dice",
+  "1",
+  "com_dice",
+  "!dice or !roll",
+  "Roll a pair of dice.",
+  "0"
+]);
 
 _command.push([
   "!give",
@@ -135,14 +151,7 @@ _command.push([
   "0"
 ]);
 
-_command.push([
-  "!note",
-  "2",
-  "com_note",
-  "!note [message]",
-  "Create a note.",
-  "0"
-]);
+_command.push(["!note", "1", "com_note", "!note [id]", "Read a note.", "0"]);
 
 _command.push(["!notes", "1", "com_notes", "!notes", "View notes list.", "0"]);
 
@@ -184,14 +193,21 @@ _command.push([
 
 _command.push([
   "!readnote",
-  "2",
+  "1",
   "com_readnote",
   "!readnote [id]",
   "Read a note.",
   "0"
 ]);
 
-_command.push(["!roll", "1", "com_dice", "!roll or !dice", "Roll a pair of dice.", "0"]);
+_command.push([
+  "!roll",
+  "1",
+  "com_dice",
+  "!roll or !dice",
+  "Roll a pair of dice.",
+  "0"
+]);
 
 _command.push([
   "!say",

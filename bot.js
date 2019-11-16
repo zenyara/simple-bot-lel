@@ -307,15 +307,30 @@ function com_commands() {
   client.say(_chan, `${_commands} commands: https://tinyurl.com/0simpoblel`);
 }
 
+// !createnote [msg]
+function com_createnote() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //command id
+  var _msg = arguments[4]; // new msg
+  mydb._open();
+  mydb._newNote(_uname, _dname, _msg);
+  mydb._close();
+  // get response after x milliseconds
+  let wait = setTimeout(_doResponse, _dbVars._timeout);
+}
+
 // "!createtable"
 function com_createtable() {
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
   var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //cmd id
+  var _table = arguments[4]; //table name
   if (_perm > 1 && _uname == process.env.TCHAN) {
     mydb._open();
-    mydb._createTable();
+    mydb._createTable(_table);
     mydb._close();
     // get response after x milliseconds
     let wait = setTimeout(_doResponse, _dbVars._timeout);
@@ -327,6 +342,20 @@ function com_d20() {
   const sides = 20;
   const num = Math.floor(Math.random() * sides) + 1;
   client.say(_chan, `[ ${num} ] for ${_dname} on a D20.`);
+}
+
+// "!deletenote"
+function com_deletenote() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //cmd id
+  var _nid = arguments[4].toLowerCase(); //target note to delete
+  mydb._open();
+  mydb._deleteNote(_uname, _dname, _nid);
+  mydb._close();
+  // get response after x milliseconds
+  let wait = setTimeout(_doResponse, _dbVars._timeout);
 }
 
 // "!deleteplayer"
@@ -406,6 +435,29 @@ function com_makelist() {
     _cl += "- `" + _command[i][3] + "`  " + _command[i][4] + "\r\r";
   }
   console.log(_cl);
+}
+
+// "!note [id]"
+function com_note() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _nid = arguments[4]; //target note to read
+  mydb._open();
+  mydb._readNote(_uname, _dname, _nid);
+  mydb._close();
+  // get response after x milliseconds
+  let wait = setTimeout(_doResponse, _dbVars._timeout);
+}
+
+// !notes
+function com_notes() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  mydb._open();
+  mydb._getNotesList(_uname, _dname);
+  mydb._close();
+  // get response after x milliseconds
+  let wait = setTimeout(_doResponse, _dbVars._timeout);
 }
 
 // "!play or !join"

@@ -1,61 +1,66 @@
-**33 commands (updated regularly)**
+**35 commands (updated regularly)**
 
-- `!1` Choose path 1.
+- `!1`  Choose path 1.
 
-- `!2` Choose path 2.
+- `!2`  Choose path 2.
 
-- `!3` Choose path 3.
+- `!3`  Choose path 3.
 
-- `!4` Choose path 4.
+- `!4`  Choose path 4.
 
-- `!about` About this project.
+- `!about`  About this project.
 
-- `!buy [item id]` Buy an item!
+- `!buy [item id]`  Buy an item!
 
-- `!commands` View all commands.
+- `!commands`  View all commands.
 
-- `!createtable` Recreate users table.
+- `!createnote [message]`  Create a note.
 
-- `!d20` Roll a 20-sided die.
+- `!createtable`  Recreate users table.
 
-- `!deletenote [id]` Delete a note.
+- `!d20`  Roll a 20-sided die.
 
-- `!deleteplayer or !deleteuser [name]` Delete a player (self-only if NOT mod/op).
+- `!deletenote [id]`  Delete a note.
 
-- `!droptable [Table Name]` Drop a table.
+- `!deleteplayer or !deleteuser [name]`  Delete a player (self-only if NOT mod/op).
 
-- `!dice` Roll a pair of dice.
+- `!droptable [Table Name]`  Drop a table.
 
-- `!give [target] [item id]` Give another player an item.
+- `!dice or !roll`  Roll a pair of dice.
 
-- `!gold [target] [amount]` Give another player some gold.
+- `!give [target] [item id]`  Give another player an item.
 
-- `!help` Help with commands and such.
+- `!gold [target] [amount]`  Give another player some gold.
 
-- `!join or !play` Join the next available round.
+- `!help`  Help with commands and such.
 
-- `!makelist` Create a list of commands to update commands page.
+- `!join or !play`  Join the next available round.
 
-- `!me or !stats` View your stats.
+- `!makelist`  Create a list of commands to update commands page.
 
-- `!note [message]` Create a note.
+- `!me or !stats`  View your stats.
 
-- `!notes` View notes list.
+- `!note [id]`  Read a note.
 
-- `!player [name or id]` View target player's stats.
+- `!notes`  View notes list.
 
-- `!players` View the players list.
+- `!player [name or id]`  View target player's stats.
 
-- `!rank` View your leaderboard rank.
+- `!players`  View the players list.
 
-- `!readnote [id]` Read a note.
+- `!rank`  View your leaderboard rank.
 
-- `!say [message]` Say something.
+- `!readnote [id]`  Read a note.
 
-- `!shop [armor, pets, potions, weapons]` View the shop!
+- `!say [message]`  Say something.
 
-- `!text` Send OP a text message.
+- `!shop [armor, pets, potions, weapons]`  View the shop!
 
-- `!uptime` Display this channel's uptime.
+- `!me or !stats`  View your stats.
 
-- `!test [message here]` Run a test.
+- `!text`  Send OP a text message.
+
+- `!uptime`  Display this channel's uptime.
+
+- `!test [message here]`  Run a test.
+

@@ -37,7 +37,7 @@ exports._close = function() {
 };
 
 // Create the twitchusers table
-exports._createTable = function() {
+exports._createTable = function(tbl) {
   /* ===== twitchusers table fields =======
 user_id INTEGER PRIMARY KEY AUTOINCREMENT, 
 user_name TEXT NOT NULL UNIQUE,
@@ -54,11 +54,19 @@ active INTEGER NOT NULL DEFAULT 0,
 ban INTEGER NOT NULL DEFAULT 0,
 ban_reason TEXT NOT NULL DEFAULT ('No reason given.')";
 */
-  let sql =
-    "CREATE TABLE twitchusers (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL UNIQUE, display_name TEXT NOT NULL UNIQUE, email TEXT NOT NULL DEFAULT (' '),tagline TEXT NOT NULL DEFAULT (' '), permission INTEGER NOT NULL DEFAULT 0, first_played TEXT, last_played TEXT, avatar INTEGER NOT NULL DEFAULT 0, gold INTEGER NOT NULL DEFAULT 4, xp INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 0, ban INTEGER NOT NULL DEFAULT 0, ban_reason TEXT NOT NULL DEFAULT ('No reason given.'))";
+  console.log(tbl);
+
+  let sql = "";
+  if (tbl == "twitchusers") {
+    sql =
+      "CREATE TABLE twitchusers (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL UNIQUE, display_name TEXT NOT NULL UNIQUE, email TEXT NOT NULL DEFAULT (' '),tagline TEXT NOT NULL DEFAULT (' '), permission INTEGER NOT NULL DEFAULT 0, first_played TEXT, last_played TEXT, avatar INTEGER NOT NULL DEFAULT 0, gold INTEGER NOT NULL DEFAULT 4, xp INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 0, ban INTEGER NOT NULL DEFAULT 0, ban_reason TEXT NOT NULL DEFAULT ('No reason given.'))";
+  } else if (tbl == "notes") {
+    sql =
+      "CREATE TABLE notes (note_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, note TEXT, created TEXT NOT NULL)";
+  }
   idb.db.run(sql, err => {
     if (err) {
-      idb._setResponse(`Table 'twitchusers' already exists.`);
+      idb._setResponse(`Table '${tbl}' already exists.`);
     } else {
       idb._setResponse(`Table recreated.`);
     }
@@ -147,12 +155,97 @@ exports._test = function() {
   ==================================================
   ==================================================*/
 
+// Insert new data into notes table.. (!note [msg])
+exports._newNote = function(un, dn, msg) {
+  /*note_id, user_name, note, created */
+  let d = new Date();
+  let ds = d.toString();
+  let _nowDate = ds.substr(0, 24);
+  //let _uts = Math.floor(d / 1000); // UNIX Timestamp (now)
+  let sql = "INSERT INTO notes(user_name,note,created) VALUES (?,?,?)";
+  idb.db.run(sql, [un, msg, _nowDate], function(err) {
+    if (err) {
+      return console.error(err.message);
+      idb._setResponse(`'Error creating note.'`);
+    }
+    // get the last insert id: rowid ${this.lastID}
+    idb._setResponse(`${dn}, your new note (id:${this.lastID}) was added.`);
+  });
+};
+
+// !notes (get list of note ids for user)
+/*note_id, user_name, note, created */
+exports._getNotesList = function(un, dn) {
+  let sql = `SELECT 
+            note_id id,
+            created cr,
+            note note
+            FROM notes 
+            WHERE user_name=?`;
+  idb.db.all(sql, [un], (err, rows) => {
+    if (err) {
+      throw err;
+    }
+    let _ids = "";
+    rows.forEach(row => {
+      _ids += ` [${row.id} - ${row.note.substr(0, 9)}..]`;
+    });
+    if (rows == 0) {
+      idb._setResponse(`${dn}, you have 0 notes.`);
+    } else {
+      idb._setResponse(`${dn}, your note ids: ${_ids}.`);
+    }
+  });
+};
+
+// !readnote [id]
+/*note_id, user_name, note, created */
+exports._readNote = function(un, dn, nid) {
+  let sql = `SELECT
+            note note,
+            created cr 
+            FROM notes 
+            WHERE user_name=?
+            AND note_id=?`;
+  idb.db.get(sql, [un, nid], (err, row) => {
+    if (err) {
+      //return console.error(err.message);
+      return 0;
+    }
+    if (row) {
+      let _response = `'${dn}, [Note]: ${row.note}' - ${row.cr}`;
+      idb._setResponse(_response);
+    } else {
+      idb._setResponse(`Note id:${nid} not found.`);
+    }
+  });
+};
+
+//!deletenote [id]
+exports._deleteNote = function(un, dn, nid) {
+  idb.db.run(
+    `DELETE FROM notes WHERE note_id=? AND user_name=?`,
+    [nid, un],
+    function(err) {
+      if (err) {
+        idb._setResponse(err.message);
+        //return console.error(err.message);
+      }
+      //console.log(`Row(s) deleted ${this.changes}`);
+      if (this.changes > 0) {
+        idb._setResponse(`${dn}, your note was deleted.`);
+      } else {
+        idb._setResponse(`${dn}, note id:${nid} doesn't exist.`);
+      }
+    }
+  );
+};
+
 // Delete target user !deleteuser [name]
 exports._deleteUser = function(_user) {
   idb.db.run(`DELETE FROM twitchusers WHERE user_name=?`, _user, function(err) {
     if (err) {
       idb._setResponse(err.message);
-      //return console.error(err.message);
     }
     //console.log(`Row(s) deleted ${this.changes}`);
     if (this.changes > 0) {
