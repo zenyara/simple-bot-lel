@@ -79,7 +79,7 @@ _command.push([
   "2"
 ]);
 
-_command.push(["!dice", "1", "com_dice", "!dice", "Roll a pair of dice.", "0"]);
+_command.push(["!dice", "1", "com_dice", "!dice or !roll", "Roll a pair of dice.", "0"]);
 
 _command.push([
   "!give",
@@ -190,6 +190,8 @@ _command.push([
   "Read a note.",
   "0"
 ]);
+
+_command.push(["!roll", "1", "com_dice", "!roll or !dice", "Roll a pair of dice.", "0"]);
 
 _command.push([
   "!say",

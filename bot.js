@@ -54,7 +54,7 @@ let player = new Array();
   ==================================================*/
 
 // Called every time a message comes in
-function onMessageHandler(channel, user, msg, self) {
+function onMessageHandler(channel, user, message, self) {
   // is the user a moderator?
   var _isMod = user["mod"]; // true/false
   var _isOp = user["username"] == OP ? true : false;
@@ -72,8 +72,17 @@ function onMessageHandler(channel, user, msg, self) {
 
   if (self) {
     return;
-  } // Ignore messages from the bot
-
+  }
+  // remove illegal chars from msg string
+  // allowed characters (all else banned)
+  // remove any < or >
+  let messageRemoveSigns = message.replace(/<|>|;|\\/gi, "");
+  // remove any other unwanted chars
+  let msg = messageRemoveSigns.replace(
+    /[^ a-z0-9!@#$*_+-=~,./?{}\[\]\|]/gi,
+    ""
+  );
+  //console.log(msg);
   /*--------------------------------------------------
 			PART ONE - Finding the needle.
 	---------------------------------------------------*/
@@ -265,11 +274,10 @@ function com_about() {
 }
 
 function com_buy() {
-  // username,displayname,commandID
   var _uname = arguments[0]; //username
   var _dname = arguments[1]; //displayname
   var _cid = arguments[3]; //command id
-  var _item = arguments[3]; // item id
+  var _item = arguments[4]; // item id
   var _cmd = _command[_cid][0]; //command name;
   var _fn = _command[_cid][2]; //fn name;
 
@@ -442,16 +450,39 @@ function com_uptime() {
   client.say(_chan, `Not sure what the uptime (command) is atm.`);
 }
 
+// "!stats or !me"
+function com_stats() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //cmd id
+  var _target = arguments[4]; // target
+  let _st = _target.length < 3 ? _uname : _target;
+  mydb._open();
+  mydb._viewPlayerStats(_st);
+  mydb._close();
+  // get response after x milliseconds
+  let wait = setTimeout(_doResponse, _dbVars._timeout);
+}
+
 // "!test"
 function com_test() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //command id
-  var _cmd = _command[_cid][0]; //command name;
-  var _fn = _command[_cid][2]; //fn name;
-  mydb._open();
-  mydb._test(); // test read data from twitchusers table
-  //mydb._insert();
-  mydb._close();
-  client.say(_chan, `${_cid}, ${_cmd}, ${_fn}`);
+  if (_perm > 0) {
+    mydb._open();
+    mydb._test();
+    mydb._close();
+    // get response after x milliseconds
+    let wait = setTimeout(_doResponse, _dbVars._timeout);
+  } else {
+    client.say(
+      _chan,
+      `${_dname}, you do not have permission to use the !test command.`
+    );
+  }
 }
 
 function com_text() {
