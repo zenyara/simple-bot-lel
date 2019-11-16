@@ -241,6 +241,42 @@ exports._deleteNote = function(un, dn, nid) {
   );
 };
 
+// !players (get list of players)
+/*user_id, user_name, display_name, 
+  email, tagline, permission, first_played, 
+  last_played, avatar, gold, xp, active, 
+  ban, ban_reason */
+
+exports._getPlayersList = function(un, dn) {
+  let sql = `SELECT 
+            user_id id,
+            display_name dname,
+            first_played pfirst,
+            last_played plast,
+            gold gold,
+            xp xp,
+            permission perm,
+            avatar avatar,
+            ban ban,
+            ban_reason reason
+
+            FROM twitchusers`;
+  idb.db.all(sql, (err, rows) => {
+    if (err) {
+      throw err;
+    }
+    let _ps = "";
+    rows.forEach(row => {
+      _ps += ` [${row.dname} w/${row.xp}xp, ${row.gold}g]`;
+    });
+    if (rows == 0) {
+      idb._setResponse(`${dn}, there are 0 players.`);
+    } else {
+      idb._setResponse(`${dn}, players: ${_ps}`);
+    }
+  });
+};
+
 // Delete target user !deleteuser [name]
 exports._deleteUser = function(_user) {
   idb.db.run(`DELETE FROM twitchusers WHERE user_name=?`, _user, function(err) {

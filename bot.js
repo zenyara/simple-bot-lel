@@ -473,6 +473,17 @@ function com_play() {
   let wait = setTimeout(_doResponse, _dbVars._timeout);
 }
 
+// !players
+function com_players() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  mydb._open();
+  mydb._getPlayersList(_uname, _dname);
+  mydb._close();
+  // get response after x milliseconds
+  let wait = setTimeout(_doResponse, _dbVars._timeout);
+}
+
 function com_say() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username

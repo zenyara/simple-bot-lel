@@ -38,13 +38,11 @@
 
 - `!makelist`  Create a list of commands to update commands page.
 
-- `!me or !stats`  View your stats.
+- `!me, !stats, or !player [name]`  View a player's stats.
 
 - `!note [id]`  Read a note.
 
 - `!notes`  View notes list.
-
-- `!player [name or id]`  View target player's stats.
 
 - `!players`  View the players list.
 
@@ -55,8 +53,6 @@
 - `!say [message]`  Say something.
 
 - `!shop [armor, pets, potions, weapons]`  View the shop!
-
-- `!me or !stats`  View your stats.
 
 - `!text`  Send OP a text message.
 

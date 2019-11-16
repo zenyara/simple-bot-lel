@@ -146,8 +146,8 @@ _command.push([
   "!me",
   "1",
   "com_stats",
-  "!me or !stats",
-  "View your stats.",
+  "!me, !stats, or !player [name]",
+  "View a player's stats.",
   "0"
 ]);
 
@@ -166,10 +166,10 @@ _command.push([
 
 _command.push([
   "!player",
-  "2",
-  "com_player",
-  "!player [name or id]",
-  "View target player's stats.",
+  "1",
+  "com_stats",
+  "!me, !stats, or !player [name]",
+  "View a player's stats.",
   "0"
 ]);
 
@@ -231,8 +231,8 @@ _command.push([
   "!stats",
   "1",
   "com_stats",
-  "!me or !stats",
-  "View your stats.",
+  "!me, !stats, or !player [name]",
+  "View a player's stats.",
   "0"
 ]);
 
