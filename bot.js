@@ -1,3 +1,4 @@
+// https://www.tutorialspoint.com/socket.io/socket.io_event_handling.htm
 // init project
 const express = require("express");
 const app = express();
@@ -12,15 +13,21 @@ app.get("/", function(request, response) {
   response.sendFile(__dirname + "/views/index.html");
 });
 
+let gsock = {}; // globalize socket for Twitch use
+gsock.oldId = 0;
+gsock.newId = 0; // when this becomes > oldId it will trigger an updated command
+
 //Whenever someone connects this gets executed
 io.on("connection", function(socket) {
   console.log("A user connected");
-  console.log("A user connected");
 
-  //Send a message after a timeout of 4seconds
-  setTimeout(function() {
-    socket.send("Sent a message 4 seconds after connection!");
-  }, 4000);
+  setInterval(function() {
+    // check a changed variable to then send the updated command
+    if (gsock.newId > gsock.oldId) {
+      socket.send(`${gsock.newId}`);
+      gsock.oldId = gsock.newId;
+    }
+  }, 800);
 
   //Whenever someone disconnects this piece of code executed
   socket.on("disconnect", function() {
@@ -591,6 +598,7 @@ function com_test() {
     mydb._close();
     // get response after x milliseconds
     let wait = setTimeout(_doResponse, _dbVars._timeout);
+    gsock.newId++;
   } else {
     client.say(
       _chan,
