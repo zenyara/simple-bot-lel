@@ -13,7 +13,6 @@ app.get("/", function(request, response) {
   response.sendFile(__dirname + "/views/index.html");
 });
 
-
 let gsock = {}; // globalize socket for Twitch use
 gsock.oldId = 5000;
 gsock.newId = 5000; // when this becomes > oldId it will trigger an updated command
@@ -62,6 +61,7 @@ const listener = http.listen(process.env.PORT, function() {
 const tmi = require("tmi.js");
 const mycoms = require("./mycoms.js");
 const mydb = require("./mydb.js");
+const mypics = require("./mypics.js");
 
 // Define configuration options
 const opts = {
@@ -704,20 +704,35 @@ function com_text() {
   ==================================================
   ==================================================*/
 let game = {};
+
+game._image = mypics.pic.pp;
+game._images = mypics.pic.pps;
+
+game._getRandomImage = function() {
+  return game._image[Math.floor(Math.random() * game._images)];
+};
+
+game._picture = "";
 game._newBlock = new Array();
 game._block = new Array();
 game._blocks = game._block.length;
 
 game._start = function() {
+  game._picture = game._getRandomImage();
   game._block = game._newBlock;
   game._blocks = game._newBlock.length;
-  console.log(`Game has been freshly started.`);
+  console.log(
+    `Game has been freshly started with picture '${game._picture}' of (${game._images}).`
+  );
 };
 
 game._reset = function() {
+  game._picture = game._getRandomImage();
   game._block = game._newBlock;
   game._blocks = game._newBlock.length;
-  console.log(`Game has been reset.`);
+  console.log(
+    `Game has been reset with picture '${game._picture}' of (${game._images}).`
+  );
 };
 
 game._pullBlock = function() {
