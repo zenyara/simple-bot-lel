@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Socket.io Test</title>
+    <title>GXU</title>
     <meta name="description" content="A cool thing made with Glitch" />
     <link
       id="favicon"
@@ -34,7 +34,10 @@
   <script>
     var socket = io();
     //socket.on('message', function(data){document.write(data)});
-    socket.on('message', function(data){document.title = data;document.getElementById("putcommandhere").innerHTML=data});
+    socket.on("broadcast", function(data) {
+      document.title = data;
+      document.getElementById("putcommandhere").innerHTML = data;
+    });
   </script>
 
   <body>
@@ -47,12 +50,10 @@
     <main>
       <p class="bold">Command Center</p>
 
-      <p><div id="putcommandhere">Commands incoming..</div></p>
+      <div id="putcommandhere">
+        Commands incoming..
+      </div>
     </main>
-    
-    
-    
-    
 
     <footer>Made with <a href="https://glitch.com">Glitch</a>!</footer>
 

@@ -14,30 +14,32 @@ app.get("/", function(request, response) {
 });
 
 let gsock = {}; // globalize socket for Twitch use
-gsock.oldId = 0;
-gsock.newId = 0; // when this becomes > oldId it will trigger an updated command
+gsock.oldId = 5000;
+gsock.newId = 5000; // when this becomes > oldId it will trigger an updated command
+gsock.cmd = "none"; // last sent command
 
 //Whenever someone connects this gets executed
 io.on("connection", function(socket) {
-  console.log("A user connected");
+  //console.log("A user connected");
 
   setInterval(function() {
     // check a changed variable to then send the updated command
     if (gsock.newId > gsock.oldId) {
-      socket.send(`${gsock.newId}`);
+      //socket.send(`GXU${gsock.newId}`);
+      io.sockets.emit("broadcast", `${gsock.cmd}GXU`);
       gsock.oldId = gsock.newId;
     }
   }, 800);
 
   //Whenever someone disconnects this piece of code executed
   socket.on("disconnect", function() {
-    console.log("A user disconnected");
+    //console.log("A user disconnected");
   });
 });
 
 // listen for requests :)
 const listener = http.listen(process.env.PORT, function() {
-  console.log("Your app is listening on port " + listener.address().port);
+  //console.log("Your app is listening on port " + listener.address().port);
 });
 
 /*==================================================
@@ -577,6 +579,7 @@ function com_stats() {
   var _dname = arguments[1]; //displayname
   var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //cmd id
+  var _cmd = _command[_cid][0]; //command name;
   var _target = arguments[4]; // target
   let _st = _target.length < 3 ? _uname : _target;
   mydb._open();
@@ -584,6 +587,8 @@ function com_stats() {
   mydb._close();
   // get response after x milliseconds
   let wait = setTimeout(_doResponse, _dbVars._timeout);
+  gsock.newId++;
+  gsock.cmd = _cmd;
 }
 
 // "!test"
@@ -592,6 +597,7 @@ function com_test() {
   var _dname = arguments[1]; //displayname
   var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //command id
+  var _cmd = _command[_cid][0]; //command name;
   if (_perm > 0) {
     mydb._open();
     mydb._test();
@@ -599,6 +605,7 @@ function com_test() {
     // get response after x milliseconds
     let wait = setTimeout(_doResponse, _dbVars._timeout);
     gsock.newId++;
+    gsock.cmd = _cmd;
   } else {
     client.say(
       _chan,
