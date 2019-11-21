@@ -21,6 +21,15 @@ _command.push([
   "0"
 ]);
 
+_command.push([
+  "!addnote",
+  "1",
+  "com_createnote",
+  "!addnote [message]",
+  "Create a note.",
+  "0"
+]);
+
 _command.push(["!buy", "1", "com_buy", "!buy [item id]", "Buy an item!", "0"]);
 
 _command.push([
@@ -183,6 +192,15 @@ _command.push([
 ]);
 
 _command.push([
+  "!pullblock",
+  "1",
+  "com_pullblock",
+  "!pullblock [x]",
+  "Pull a block.",
+  "2"
+]);
+
+_command.push([
   "!rank",
   "1",
   "com_rank",
@@ -198,6 +216,15 @@ _command.push([
   "!readnote [id]",
   "Read a note.",
   "0"
+]);
+
+_command.push([
+  "!reset",
+  "1",
+  "com_reset",
+  "!reset",
+  "Reset the game.",
+  "2"
 ]);
 
 _command.push([
@@ -225,6 +252,15 @@ _command.push([
   "!shop [armor, pets, potions, weapons]",
   "View the shop!",
   "0"
+]);
+
+_command.push([
+  "!start",
+  "1",
+  "com_start",
+  "!start",
+  "Start the game.",
+  "2"
 ]);
 
 _command.push([

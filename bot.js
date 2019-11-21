@@ -13,6 +13,7 @@ app.get("/", function(request, response) {
   response.sendFile(__dirname + "/views/index.html");
 });
 
+
 let gsock = {}; // globalize socket for Twitch use
 gsock.oldId = 5000;
 gsock.newId = 5000; // when this becomes > oldId it will trigger an updated command
@@ -544,6 +545,52 @@ function com_players() {
   let wait = setTimeout(_doResponse, _dbVars._timeout);
 }
 
+// "!pullblock"
+function com_pullblock() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  if (_perm > 0) {
+    //mydb._open();
+    game._pullBlock();
+    //mydb._close();
+    // get response after x milliseconds
+    //let wait = setTimeout(_doResponse, _dbVars._timeout);
+    gsock.newId++;
+    gsock.cmd = _cmd;
+  } else {
+    client.say(
+      _chan,
+      `${_dname}, you do not have permission to use the !pullblock command.`
+    );
+  }
+}
+
+// "!reset"
+function com_reset() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  if (_perm > 0) {
+    //mydb._open();
+    game._reset();
+    //mydb._close();
+    // get response after x milliseconds
+    //let wait = setTimeout(_doResponse, _dbVars._timeout);
+    gsock.newId++;
+    gsock.cmd = _cmd;
+  } else {
+    client.say(
+      _chan,
+      `${_dname}, you do not have permission to use the !reset command.`
+    );
+  }
+}
+
 function com_say() {
   // username,displayname,commandID
   var _uname = arguments[0]; //username
@@ -573,6 +620,29 @@ function com_uptime() {
   client.say(_chan, `Not sure what the uptime (command) is atm.`);
 }
 
+// "!start"
+function com_start() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  if (_perm > 0) {
+    //mydb._open();
+    game._start();
+    //mydb._close();
+    // get response after x milliseconds
+    //let wait = setTimeout(_doResponse, _dbVars._timeout);
+    gsock.newId++;
+    gsock.cmd = _cmd;
+  } else {
+    client.say(
+      _chan,
+      `${_dname}, you do not have permission to use the !start command.`
+    );
+  }
+}
+
 // "!stats or !me"
 function com_stats() {
   var _uname = arguments[0]; //username
@@ -587,8 +657,6 @@ function com_stats() {
   mydb._close();
   // get response after x milliseconds
   let wait = setTimeout(_doResponse, _dbVars._timeout);
-  gsock.newId++;
-  gsock.cmd = _cmd;
 }
 
 // "!test"
@@ -624,3 +692,36 @@ function com_text() {
   client.say(_chan, `${_dname} tried sending OP '${OP}' a text message.`);
 }
 //mydb._open;mydb._dropTable();mydb._close();
+
+/*==================================================
+  ==================================================
+  
+  
+              DEFINE  G A M E  FUNCTIONS
+                  (Puzzle Drop)
+            
+
+  ==================================================
+  ==================================================*/
+let game = {};
+game._newBlock = new Array();
+game._block = new Array();
+game._blocks = game._block.length;
+
+game._start = function() {
+  game._block = game._newBlock;
+  game._blocks = game._newBlock.length;
+  console.log(`Game has been freshly started.`);
+};
+
+game._reset = function() {
+  game._block = game._newBlock;
+  game._blocks = game._newBlock.length;
+  console.log(`Game has been reset.`);
+};
+
+game._pullBlock = function() {
+  /* Go through the array of blocks and pull one (remove target block from array as well)
+   */
+  console.log(`Pulling a random block.`);
+};
