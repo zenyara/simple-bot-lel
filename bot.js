@@ -20,7 +20,7 @@ gsock.cmd = "none"; // last sent command
 
 //Whenever someone connects this gets executed
 io.on("connection", function(socket) {
-  //console.log("A user connected");
+  console.log("A user connected");
 
   setInterval(function() {
     // check a changed variable to then send the updated command
@@ -33,13 +33,13 @@ io.on("connection", function(socket) {
 
   //Whenever someone disconnects this piece of code executed
   socket.on("disconnect", function() {
-    //console.log("A user disconnected");
+    console.log("A user disconnected");
   });
 });
 
 // listen for requests :)
 const listener = http.listen(process.env.PORT, function() {
-  //console.log("Your app is listening on port " + listener.address().port);
+  console.log("Your app is listening on port " + listener.address().port);
 });
 
 /*==================================================
