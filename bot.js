@@ -545,29 +545,6 @@ function com_players() {
   let wait = setTimeout(_doResponse, _dbVars._timeout);
 }
 
-// "!pullblock"
-function com_pullblock() {
-  var _uname = arguments[0]; //username
-  var _dname = arguments[1]; //displayname
-  var _perm = arguments[2]; //permission level
-  var _cid = arguments[3]; //command id
-  var _cmd = _command[_cid][0]; //command name;
-  if (_perm > 0) {
-    //mydb._open();
-    game._pullBlock();
-    //mydb._close();
-    // get response after x milliseconds
-    //let wait = setTimeout(_doResponse, _dbVars._timeout);
-    gsock.newId++;
-    gsock.cmd = _cmd;
-  } else {
-    client.say(
-      _chan,
-      `${_dname}, you do not have permission to use the !pullblock command.`
-    );
-  }
-}
-
 // "!reset"
 function com_reset() {
   var _uname = arguments[0]; //username
@@ -575,18 +552,13 @@ function com_reset() {
   var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
-  if (_perm > 0) {
-    //mydb._open();
+  var _lev = _command[_cid][5]; // command level
+  if (_perm >= _lev) {
     game._reset();
-    //mydb._close();
-    // get response after x milliseconds
-    //let wait = setTimeout(_doResponse, _dbVars._timeout);
-    gsock.newId++;
-    gsock.cmd = _cmd;
   } else {
     client.say(
       _chan,
-      `${_dname}, you do not have permission to use the !reset command.`
+      `${_dname}, you do not have permission to use the ${_cmd} command.`
     );
   }
 }
@@ -627,18 +599,13 @@ function com_start() {
   var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
-  if (_perm > 0) {
-    //mydb._open();
+  var _lev = _command[_cid][5]; // command level
+  if (_perm >= _lev) {
     game._start();
-    //mydb._close();
-    // get response after x milliseconds
-    //let wait = setTimeout(_doResponse, _dbVars._timeout);
-    gsock.newId++;
-    gsock.cmd = _cmd;
   } else {
     client.say(
       _chan,
-      `${_dname}, you do not have permission to use the !start command.`
+      `${_dname}, you do not have permission to use the ${_cmd} command.`
     );
   }
 }
@@ -657,6 +624,24 @@ function com_stats() {
   mydb._close();
   // get response after x milliseconds
   let wait = setTimeout(_doResponse, _dbVars._timeout);
+}
+
+// "!stop"
+function com_stop() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //command id
+  var _cmd = _command[_cid][0]; //command name;
+  var _lev = _command[_cid][5]; // command level
+  if (_perm >= _lev) {
+    game._stop();
+  } else {
+    client.say(
+      _chan,
+      `${_dname}, you do not have permission to use the ${_cmd} command.`
+    );
+  }
 }
 
 // "!test"
@@ -709,34 +694,35 @@ game._image = mypics.pic.pp;
 game._images = mypics.pic.pps;
 
 game._getRandomImage = function() {
-  return game._image[Math.floor(Math.random() * game._images)];
+  let _index = Math.floor(Math.random() * game._images);
+  game._index = _index;
+  return game._image[_index];
 };
 
 game._picture = "";
+game._index = 0;
 game._newBlock = new Array();
-game._block = new Array();
-game._blocks = game._block.length;
 
 game._start = function() {
+  gsock.newId++;
+  gsock.cmd = "!start";
   game._picture = game._getRandomImage();
-  game._block = game._newBlock;
-  game._blocks = game._newBlock.length;
   console.log(
     `Game has been freshly started with picture '${game._picture}' of (${game._images}).`
   );
 };
 
-game._reset = function() {
-  game._picture = game._getRandomImage();
-  game._block = game._newBlock;
-  game._blocks = game._newBlock.length;
-  console.log(
-    `Game has been reset with picture '${game._picture}' of (${game._images}).`
-  );
+game._stop = function() {
+  gsock.newId++;
+  gsock.cmd = "!stop";
+  console.log(`Game has been stopped/paused.`);
 };
 
-game._pullBlock = function() {
-  /* Go through the array of blocks and pull one (remove target block from array as well)
-   */
-  console.log(`Pulling a random block.`);
+game._reset = function() {
+  game._picture = game._getRandomImage();
+  gsock.newId++;
+  gsock.cmd = game._index;
+  console.log(
+    `Game has been reset with picture '${game._picture}' index (${game._index}) of (${game._images}).`
+  );
 };

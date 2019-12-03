@@ -192,15 +192,6 @@ _command.push([
 ]);
 
 _command.push([
-  "!pullblock",
-  "1",
-  "com_pullblock",
-  "!pullblock [x]",
-  "Pull a block.",
-  "2"
-]);
-
-_command.push([
   "!rank",
   "1",
   "com_rank",
@@ -218,14 +209,7 @@ _command.push([
   "0"
 ]);
 
-_command.push([
-  "!reset",
-  "1",
-  "com_reset",
-  "!reset",
-  "Reset the game.",
-  "2"
-]);
+_command.push(["!reset", "1", "com_reset", "!reset", "Reset the game.", "2"]);
 
 _command.push([
   "!roll",
@@ -259,8 +243,8 @@ _command.push([
   "1",
   "com_start",
   "!start",
-  "Start the game.",
-  "2"
+  "Start/unpause the game.",
+  "0"
 ]);
 
 _command.push([
@@ -271,6 +255,8 @@ _command.push([
   "View a player's stats.",
   "0"
 ]);
+
+_command.push(["!stop", "1", "com_stop", "!stop", "Stop/pause the game.", "0"]);
 
 _command.push([
   "!text",

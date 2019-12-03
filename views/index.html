@@ -7,6 +7,8 @@
 <!-- haml: http://haml.info/ -->
 <!-- hbs(handlebars): http://handlebarsjs.com/ -->
 
+<!-- I'm using this page to expose the "title" element to Autohotkey for Twitch plays commands to run a game on my local machine. -->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -37,6 +39,10 @@
     socket.on("broadcast", function(data) {
       document.title = data;
       document.getElementById("putcommandhere").innerHTML = data;
+      // reset the title after x seconds to allow for same command usage with AHK
+      setTimeout(function() {
+        document.title = "clearGXU";
+      }, 1721);
     });
   </script>
 
