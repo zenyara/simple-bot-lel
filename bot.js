@@ -26,11 +26,19 @@ io.on("connection", function(socket) {
     // check a changed variable to then send the updated command
     if (gsock.newId > gsock.oldId) {
       //socket.send(`GXU${gsock.newId}`);
-      io.sockets.emit("broadcast", `${gsock.cmd}GXU`);
+      io.sockets.emit("broadcast", `${gsock.cmd}`);
       gsock.oldId = gsock.newId;
     }
   }, 800);
 
+  //called from UE4 to set the new word-to-guess AND update the top 20 list
+  socket.on('new word event', function (data) {
+    console.log(`The new word is: ${data.word}.`);
+    game._picture = data.word;
+    io.sockets.emit("newtop20", _dbVars._top20);
+  });
+  
+  
   //Whenever someone disconnects this piece of code executed
   socket.on("disconnect", function() {
     console.log("A user disconnected");
@@ -61,7 +69,6 @@ const listener = http.listen(process.env.PORT, function() {
 const tmi = require("tmi.js");
 const mycoms = require("./mycoms.js");
 const mydb = require("./mydb.js");
-const mypics = require("./mypics.js");
 
 // Define configuration options
 const opts = {
@@ -183,6 +190,25 @@ function onMessageHandler(channel, user, message, self) {
       _chan,
       `bad cmd: '${_needle}' @${_displayname} - https://tinyurl.com/0simpoblel`
     );
+  }
+
+  // they are not trying to run a command. Check for game answer instead.
+  if (msg.substr(0, 1) != "!" && msg.length > 2) {
+    let smsg = msg.toLowerCase();
+    let _nn = smsg.search(game._picture);
+    if (_nn >= 0) {
+      clearTimeout(game._timer);
+      // match found!
+      client.say(
+        _chan,
+        `${_displayname} guessed '${game._picture}' correctly! (+${game._points} points)`
+      );
+      game._reset(_username,_displayname,_pLevel);
+      /*
+      1. give this player the points
+      2. !reset
+      */
+    }
   }
 
   // return message back to user in channel
@@ -498,6 +524,16 @@ function com_makelist() {
   console.log(_cl);
 }
 
+// !motd [msg]
+function com_motd() {
+  var _uname = arguments[0]; //username
+  var _dname = arguments[1]; //displayname
+  var _perm = arguments[2]; //permission level
+  var _cid = arguments[3]; //command id
+  var _msg = arguments[4]; // new msg
+  game._motd = _msg;
+}
+
 // "!note [id]"
 function com_note() {
   var _uname = arguments[0]; //username
@@ -651,9 +687,14 @@ function com_test() {
   var _perm = arguments[2]; //permission level
   var _cid = arguments[3]; //command id
   var _cmd = _command[_cid][0]; //command name;
+  /*client.say(
+    _chan,
+    `test 1 2 3.`
+  );*/
+  
   if (_perm > 0) {
     mydb._open();
-    mydb._test();
+    mydb._quickChange();
     mydb._close();
     // get response after x milliseconds
     let wait = setTimeout(_doResponse, _dbVars._timeout);
@@ -665,6 +706,7 @@ function com_test() {
       `${_dname}, you do not have permission to use the !test command.`
     );
   }
+  
 }
 
 function com_text() {
@@ -690,39 +732,55 @@ function com_text() {
   ==================================================*/
 let game = {};
 
-game._image = mypics.pic.pp;
-game._images = mypics.pic.pps;
+game._enabled = true;
+game._timer = 0;
+game._t20timer = 0;
 
-game._getRandomImage = function() {
-  let _index = Math.floor(Math.random() * game._images);
-  game._index = _index;
-  return game._image[_index];
-};
-
+game._motd = "Ver 1.0 completed on Mar 15, 2020. Testing is in progress. Upgrades will be forthcoming in the following days.";
 game._picture = "";
-game._index = 0;
-game._newBlock = new Array();
+game._points = 5;
+game._startTime = 0;
+game._resetTime = 88000; // reset if not answered within x seconds
 
 game._start = function() {
-  gsock.newId++;
   gsock.cmd = "!start";
-  game._picture = game._getRandomImage();
+  gsock.newId++;
   console.log(
-    `Game has been freshly started with picture '${game._picture}' of (${game._images}).`
+    `Game has been unpaused.`
   );
 };
 
 game._stop = function() {
-  gsock.newId++;
+  clearTimeout(game._timer);
   gsock.cmd = "!stop";
+  gsock.newId++;
   console.log(`Game has been stopped/paused.`);
 };
 
-game._reset = function() {
-  game._picture = game._getRandomImage();
-  gsock.newId++;
-  gsock.cmd = game._index;
-  console.log(
-    `Game has been reset with picture '${game._picture}' index (${game._index}) of (${game._images}).`
-  );
+// loop the game with a new image if no one answers correctly
+game._reset = function(un,dn,plevel) {
+  if (game._enabled) {
+    clearTimeout(game._timer);
+    if(dn !== undefined){
+      // someone actively guessed so check for their existence in the db and give them the points
+        mydb._open();
+        mydb._givePlayerPoints(un,dn,plevel,game._points);
+        mydb._close();
+      var mms = `${dn} guessed "${game._picture}" correctly! (+${game._points} points)`;
+    }else{
+      var mms = `No one guessed "${game._picture}"`;
+    }
+    game._picture = "_bo)gU12x.S__45";
+    gsock.cmd = `!reset|${mms}|${game._motd}`;
+    //`${_displayname} guessed '${game._picture}' correctly! (+${game._points} points)`
+    gsock.newId++;
+    console.log(`Game has been reset.`);
+    game._timer = setTimeout(game._reset, game._resetTime);
+    game._t20timer = setTimeout(game._updateTop20, 3300);
+  }
 };
+game._updateTop20 = function(){
+  mydb._open();
+  mydb._updateTop20();
+  mydb._close();  
+}

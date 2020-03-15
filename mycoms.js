@@ -160,6 +160,15 @@ _command.push([
   "0"
 ]);
 
+_command.push([
+  "!motd",
+  "1",
+  "com_motd",
+  "!motd [message]",
+  "Message of the day.",
+  "0"
+]);
+
 _command.push(["!note", "1", "com_note", "!note [id]", "Read a note.", "0"]);
 
 _command.push(["!notes", "1", "com_notes", "!notes", "View notes list.", "0"]);

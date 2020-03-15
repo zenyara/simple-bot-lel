@@ -5,7 +5,7 @@ idb.fs = require("fs");
 idb.dbFile = "./.data/sqlite.db";
 idb.exists = idb.fs.existsSync(idb.dbFile);
 idb.sqlite3 = require("sqlite3").verbose();
-
+idb._top20 = [];
 idb._timeout = 180;
 idb._response = "Starting db..";
 idb._setResponse = function(nr) {
@@ -50,6 +50,7 @@ last_played TEXT,
 avatar INTEGER NOT NULL DEFAULT 0, 
 gold INTEGER NOT NULL DEFAULT 4,
 xp INTEGER NOT NULL DEFAULT 0,
+points INTEGER NOT NULL DEFAULT 0,
 active INTEGER NOT NULL DEFAULT 0, 
 ban INTEGER NOT NULL DEFAULT 0,
 ban_reason TEXT NOT NULL DEFAULT ('No reason given.')";
@@ -59,7 +60,7 @@ ban_reason TEXT NOT NULL DEFAULT ('No reason given.')";
   let sql = "";
   if (tbl == "twitchusers") {
     sql =
-      "CREATE TABLE twitchusers (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL UNIQUE, display_name TEXT NOT NULL UNIQUE, email TEXT NOT NULL DEFAULT (' '),tagline TEXT NOT NULL DEFAULT (' '), permission INTEGER NOT NULL DEFAULT 0, first_played TEXT, last_played TEXT, avatar INTEGER NOT NULL DEFAULT 0, gold INTEGER NOT NULL DEFAULT 4, xp INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 0, ban INTEGER NOT NULL DEFAULT 0, ban_reason TEXT NOT NULL DEFAULT ('No reason given.'))";
+      "CREATE TABLE twitchusers (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL UNIQUE, display_name TEXT NOT NULL UNIQUE, email TEXT NOT NULL DEFAULT (' '),tagline TEXT NOT NULL DEFAULT (' '), permission INTEGER NOT NULL DEFAULT 0, first_played TEXT, last_played TEXT, avatar INTEGER NOT NULL DEFAULT 0, gold INTEGER NOT NULL DEFAULT 4, xp INTEGER NOT NULL DEFAULT 0, points INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 0, ban INTEGER NOT NULL DEFAULT 0, ban_reason TEXT NOT NULL DEFAULT ('No reason given.'))";
   } else if (tbl == "notes") {
     sql =
       "CREATE TABLE notes (note_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, note TEXT, created TEXT NOT NULL)";
@@ -80,7 +81,7 @@ exports._quickChange = function() {
     display_name = ?
     WHERE user_name = ?
     `;
-  idb.db.run(sql, ["spamattacker", "SpamAttacker", "meeklo"], function(err) {
+  idb.db.run(sql, ["soandso", "Soandso", "meeklo"], function(err) {
     if (err) {
       return console.error(err.message);
     }
@@ -131,6 +132,7 @@ exports._test = function() {
             avatar avatar,
             gold gold,
             xp xp,
+            points points,
             active active,
             ban ban,
             ban_reason reason
@@ -141,7 +143,7 @@ exports._test = function() {
     if (err) {
       return 0;
     }
-    let _response = `${row.id} ${row.uname} ${row.dname} ${row.email} ${row.tag} ${row.perm} ${row.fp} ${row.lp} ${row.avatar} ${row.gold}g ${row.xp} ${row.active} ${row.ban} - ${row.reason}`;
+    let _response = `${row.id} ${row.uname} ${row.dname} ${row.email} ${row.tag} ${row.perm} ${row.fp} ${row.lp} ${row.avatar} ${row.gold}g ${row.xp} ${row.points} ${row.active} ${row.ban} - ${row.reason}`;
     idb._setResponse(_response);
   });
 };
@@ -244,7 +246,7 @@ exports._deleteNote = function(un, dn, nid) {
 // !players (get list of players)
 /*user_id, user_name, display_name, 
   email, tagline, permission, first_played, 
-  last_played, avatar, gold, xp, active, 
+  last_played, avatar, gold, xp, points, active, 
   ban, ban_reason */
 
 exports._getPlayersList = function(un, dn) {
@@ -255,6 +257,7 @@ exports._getPlayersList = function(un, dn) {
             last_played plast,
             gold gold,
             xp xp,
+            points points,
             permission perm,
             avatar avatar,
             ban ban,
@@ -267,7 +270,7 @@ exports._getPlayersList = function(un, dn) {
     }
     let _ps = "";
     rows.forEach(row => {
-      _ps += ` [${row.dname} w/${row.xp}xp, ${row.gold}g]`;
+      _ps += ` [${row.dname} w/${row.xp}xp, ${row.points} points, ${row.gold}g]`;
     });
     if (rows == 0) {
       idb._setResponse(`${dn}, there are 0 players.`);
@@ -295,9 +298,66 @@ exports._deleteUser = function(_user) {
 };
 
 // Insert new data into twitchusers table.. (!join or !play)
+exports._givePlayerPoints = function(un, dn, perm, amount) {
+  /*  user_id, *user_name, *display_name, email, tagline, *permission,
+  *first_played, *last_played, avatar, gold, xp, points, *active, 
+  ban, ban_reason  */
+  let d = new Date();
+  let ds = d.toString();
+  let _nowDate = ds.substr(0, 24);
+  let _uts = Math.floor(d / 1000); // UNIX Timestamp (now)
+  let sql =
+    "INSERT INTO twitchusers(user_name,display_name,permission,first_played,last_played,active,points) VALUES (?,?,?,?,?,?,?)";
+
+  idb.db.run(sql, [un, dn, perm, _nowDate, _nowDate, _uts, amount], function(
+    err
+  ) {
+    if (err) {
+      // if user exists then update their points (add to)
+      let sql = `UPDATE twitchusers
+      SET points = points + ${amount},
+      last_played = ?
+      WHERE user_name = ?
+      `;
+      idb.db.run(sql, [_uts, un], function(err) {
+        if (err) {
+        }
+      });
+    }
+  });
+};
+
+exports._updateTop20 = function() {
+  // get top 20 list
+  let sql = `SELECT 
+  display_name dname,
+  points points
+
+  FROM twitchusers 
+  ORDER BY points DESC 
+  LIMIT 20`;
+  idb.db.all(sql, (err, rows) => {
+    if (err) {
+      throw err;
+    }
+    idb._top20 = [];
+    rows.forEach(row => {
+      var v1 = row.dname;
+      var v2 = row.points;
+      idb._top20.push([v1, v2]);
+    });
+    if (rows == 0) {
+      //idb._setResponse(`Nothing to show.`);
+    } else {
+      //idb._setResponse(`Displaying top 20 players.`);
+    }
+  });
+};
+
+// Insert new data into twitchusers table.. (!join or !play)
 exports._newPlayer = function(un, dn, perm) {
   /*  user_id, *user_name, *display_name, email, tagline, *permission,
-    *first_played, *last_played, avatar, gold, xp, *active, 
+    *first_played, *last_played, avatar, gold, xp, points, *active, 
     ban, ban_reason  */
   let d = new Date();
   let ds = d.toString();
@@ -329,6 +389,7 @@ exports._viewPlayerStats = function(_user) {
             avatar avatar,
             gold gold,
             xp xp,
+            points points,
             active active,
             ban ban,
             ban_reason reason 
@@ -342,8 +403,8 @@ exports._viewPlayerStats = function(_user) {
       return 0;
     }
     if (row) {
-      //let _response333 = `${row.id} ${row.uname} ${row.dname} ${row.email} ${row.tag} ${row.perm} ${row.fp} ${row.lp} ${row.avatar} ${row.gold}g ${row.xp} ${row.active} ${row.ban} - ${row.reason}`;
-      let _response = `'${row.dname}' stats: First played: ${row.fp}, Last played: ${row.lp}, ${row.gold} Gold, XP: ${row.xp}`;
+      //let _response333 = `${row.id} ${row.uname} ${row.dname} ${row.email} ${row.tag} ${row.perm} ${row.fp} ${row.lp} ${row.avatar} ${row.gold}g ${row.xp} ${row.xp} ${row.active} ${row.ban} - ${row.reason}`;
+      let _response = `'${row.dname}' stats: First played: ${row.fp}, Last played: ${row.lp}, ${row.gold} Gold, XP: ${row.xp} Points: ${row.points}`;
       if (row.ban == 1) {
         _response += `, SUSPENDED ${row.ban} - ${row.reason}`;
       } else if (row.ban == 2) {
