@@ -30,12 +30,12 @@ io.on("connection", function(socket) {
       gsock.oldId = gsock.newId;
     }
   }, 800);
-
+// gsock.cmd = !top20|;gsock.newId++;
   //called from UE4 to set the new word-to-guess AND update the top 20 list
   socket.on('new word event', function (data) {
     console.log(`The new word is: ${data.word}.`);
     game._picture = data.word;
-    io.sockets.emit("newtop20", _dbVars._top20);
+    //io.sockets.emit("newtop20", _dbVars._top20);
   });
   
   
@@ -776,11 +776,18 @@ game._reset = function(un,dn,plevel) {
     gsock.newId++;
     console.log(`Game has been reset.`);
     game._timer = setTimeout(game._reset, game._resetTime);
-    game._t20timer = setTimeout(game._updateTop20, 3300);
+    game._t20timer = setTimeout(game._updateTop20, 1700);
   }
 };
+// updates variable
 game._updateTop20 = function(){
   mydb._open();
   mydb._updateTop20();
-  mydb._close();  
+  mydb._close();
+  game._t20timer = setTimeout(game._sendTop20, 1700);
+}
+// sends to ue4
+game._sendTop20 = function(){
+  gsock.cmd = `!top20|${_dbVars._top20}`;
+  gsock.newId++; 
 }
